@@ -6,6 +6,7 @@ use App\Models\PersonalInformation;
 use App\Models\User;
 use Illuminate\Http\Request;
 
+
 class PersonalInformationController extends Controller
 {
     public function index()
