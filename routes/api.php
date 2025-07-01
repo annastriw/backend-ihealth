@@ -1,12 +1,12 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CAPDController;
+use App\Http\Controllers\DMController;
 use App\Http\Controllers\DiscussionCommentAnswerController;
 use App\Http\Controllers\DiscussionCommentController;
 use App\Http\Controllers\DiscussionController;
 use App\Http\Controllers\FAQController;
-use App\Http\Controllers\HDController;
+use App\Http\Controllers\HTController;
 use App\Http\Controllers\ModuleContentController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PersonalInformationController;

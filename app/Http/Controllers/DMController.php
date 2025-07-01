@@ -2,38 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CAPD;
+use App\Models\DM;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class CAPDController extends Controller
+class DMController extends Controller
 {
     public function index()
     {
-        $capds = CAPD::all();
+        $dms = DM::all();
 
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'List of CAPDs retrieved successfully',
+                'message' => 'List of DMs retrieved successfully',
                 'statusCode' => 200,
             ],
-            'data' => $capds,
+            'data' => $dms,
         ]);
     }
 
     public function getBySubModule($sub_module_id)
     {
-        $capds = CAPD::where('sub_module_id', $sub_module_id)->get();
+        $dms = DM::where('sub_module_id', $sub_module_id)->get();
 
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'CAPDs retrieved successfully for the given sub_module_id',
+                'message' => 'DMs retrieved successfully for the given sub_module_id',
                 'statusCode' => 200,
             ],
-            'data' => $capds,
+            'data' => $dms,
         ]);
     }
 
@@ -47,9 +47,9 @@ class CAPDController extends Controller
             'video_url' => 'required|string',
         ]);
 
-        $path = $request->file('file_path')->store('capd_materials', 'public');
+        $path = $request->file('file_path')->store('dm_materials', 'public');
 
-        $capd = CAPD::create([
+        $dm = DM::create([
             'id' => Str::uuid(),
             'sub_module_id' => $request->sub_module_id,
             'file_path' => $path,
@@ -61,22 +61,22 @@ class CAPDController extends Controller
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'CAPD created successfully',
+                'message' => 'DM created successfully',
                 'statusCode' => 201,
             ],
-            'data' => $capd,
+            'data' => $dm,
         ], 201);
     }
 
     public function show($id)
     {
-        $capd = CAPD::find($id);
+        $dm = DM::find($id);
 
-        if (!$capd) {
+        if (!$dm) {
             return response()->json([
                 'meta' => [
                     'status' => 'error',
-                    'message' => 'CAPD not found',
+                    'message' => 'DM not found',
                     'statusCode' => 404,
                 ],
                 'data' => null,
@@ -86,22 +86,22 @@ class CAPDController extends Controller
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'CAPD details retrieved successfully',
+                'message' => 'DM details retrieved successfully',
                 'statusCode' => 200,
             ],
-            'data' => $capd,
+            'data' => $dm,
         ]);
     }
 
     public function update(Request $request, $id)
     {
-        $capd = CAPD::find($id);
+        $dm = DM::find($id);
 
-        if (!$capd) {
+        if (!$dm) {
             return response()->json([
                 'meta' => [
                     'status' => 'error',
-                    'message' => 'capd not found',
+                    'message' => 'DM not found',
                     'statusCode' => 404,
                 ],
                 'data' => null,
@@ -117,51 +117,51 @@ class CAPDController extends Controller
         ]);
 
         if ($request->hasFile('file')) {
-            if ($capd->file_path && Storage::disk('public')->exists($capd->file_path)) {
-                Storage::disk('public')->delete($capd->file_path);
+            if ($dm->file_path && Storage::disk('public')->exists($dm->file_path)) {
+                Storage::disk('public')->delete($dm->file_path);
             }
 
-            $capd->file_path = $request->file('file')->store('capd_materials', 'public');
+            $dm->file_path = $request->file('file')->store('dm_materials', 'public');
         }
 
-        $capd->sub_module_id = $request->sub_module_id ?? $capd->sub_module_id;
-        $capd->name = $request->name ?? $capd->name;
-        $capd->content = $request->content ?? $capd->content;
-        $capd->video_url = $request->video_url ?? $capd->video_url;
+        $dm->sub_module_id = $request->sub_module_id ?? $dm->sub_module_id;
+        $dm->name = $request->name ?? $dm->name;
+        $dm->content = $request->content ?? $dm->content;
+        $dm->video_url = $request->video_url ?? $dm->video_url;
 
-        $capd->save();
+        $dm->save();
 
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'CAPD updated successfully',
+                'message' => 'DM updated successfully',
                 'statusCode' => 200,
             ],
-            'data' => $capd,
+            'data' => $dm,
         ]);
     }
 
     public function destroy($id)
     {
-        $capd = CAPD::find($id);
+        $dm = DM::find($id);
 
-        if (!$capd) {
+        if (!$dm) {
             return response()->json([
                 'meta' => [
                     'status' => 'error',
-                    'message' => 'CAPD not found',
+                    'message' => 'DM not found',
                     'statusCode' => 404,
                 ],
                 'data' => null,
             ], 404);
         }
 
-        $capd->delete();
+        $dm->delete();
 
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'CAPD deleted successfully',
+                'message' => 'DM deleted successfully',
                 'statusCode' => 200,
             ],
             'data' => null,

@@ -2,38 +2,38 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\HD;
+use App\Models\HT;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class HDController extends Controller
+class HTController extends Controller
 {
     public function index()
     {
-        $hds = HD::all();
+        $hts = HT::all();
 
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'List of HDs retrieved successfully',
+                'message' => 'List of HTs retrieved successfully',
                 'statusCode' => 200,
             ],
-            'data' => $hds,
+            'data' => $hts,
         ]);
     }
 
     public function getBySubModule($sub_module_id)
     {
-        $hd = HD::where('sub_module_id', $sub_module_id)->get();
+        $ht = HT::where('sub_module_id', $sub_module_id)->get();
 
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'HD retrieved successfully for the given sub_module_id',
+                'message' => 'HT retrieved successfully for the given sub_module_id',
                 'statusCode' => 200,
             ],
-            'data' => $hd,
+            'data' => $ht,
         ]);
     }
 
@@ -47,9 +47,9 @@ class HDController extends Controller
             'video_url' => 'required|string',
         ]);
 
-        $path = $request->file('file_path')->store('hd_materials', 'public');
+        $path = $request->file('file_path')->store('ht_materials', 'public');
 
-        $hd = HD::create([
+        $ht = HT::create([
             'id' => Str::uuid(),
             'sub_module_id' => $request->sub_module_id,
             'file_path' => $path,
@@ -61,22 +61,22 @@ class HDController extends Controller
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'HD created successfully',
+                'message' => 'HT created successfully',
                 'statusCode' => 201,
             ],
-            'data' => $hd,
+            'data' => $ht,
         ], 201);
     }
 
     public function show($id)
     {
-        $hd = HD::find($id);
+        $ht = HT::find($id);
 
-        if (!$hd) {
+        if (!$ht) {
             return response()->json([
                 'meta' => [
                     'status' => 'error',
-                    'message' => 'HD not found',
+                    'message' => 'HT not found',
                     'statusCode' => 404,
                 ],
                 'data' => null,
@@ -86,22 +86,22 @@ class HDController extends Controller
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'HD details retrieved successfully',
+                'message' => 'HT details retrieved successfully',
                 'statusCode' => 200,
             ],
-            'data' => $hd,
+            'data' => $ht,
         ]);
     }
 
     public function update(Request $request, $id)
     {
-        $hd = HD::find($id);
+        $ht = HT::find($id);
 
-        if (!$hd) {
+        if (!$ht) {
             return response()->json([
                 'meta' => [
                     'status' => 'error',
-                    'message' => 'HD not found',
+                    'message' => 'HT not found',
                     'statusCode' => 404,
                 ],
                 'data' => null,
@@ -117,51 +117,51 @@ class HDController extends Controller
         ]);
 
         if ($request->hasFile('file')) {
-            if ($hd->file_path && Storage::disk('public')->exists($hd->file_path)) {
-                Storage::disk('public')->delete($hd->file_path);
+            if ($ht->file_path && Storage::disk('public')->exists($ht->file_path)) {
+                Storage::disk('public')->delete($ht->file_path);
             }
 
-            $hd->file_path = $request->file('file')->store('hd_materials', 'public');
+            $ht->file_path = $request->file('file')->store('ht_materials', 'public');
         }
 
-        $hd->sub_module_id = $request->sub_module_id ?? $hd->sub_module_id;
-        $hd->name = $request->name ?? $hd->name;
-        $hd->content = $request->content ?? $hd->content;
-        $hd->video_url = $request->video_url ?? $hd->video_url;
+        $ht->sub_module_id = $request->sub_module_id ?? $ht->sub_module_id;
+        $ht->name = $request->name ?? $ht->name;
+        $ht->content = $request->content ?? $ht->content;
+        $ht->video_url = $request->video_url ?? $ht->video_url;
 
-        $hd->save();
+        $ht->save();
 
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'HD updated successfully',
+                'message' => 'HT updated successfully',
                 'statusCode' => 200,
             ],
-            'data' => $hd,
+            'data' => $ht,
         ]);
     }
 
     public function destroy($id)
     {
-        $hd = HD::find($id);
+        $ht = HT::find($id);
 
-        if (!$hd) {
+        if (!$ht) {
             return response()->json([
                 'meta' => [
                     'status' => 'error',
-                    'message' => 'HD not found',
+                    'message' => 'HT not found',
                     'statusCode' => 404,
                 ],
                 'data' => null,
             ], 404);
         }
 
-        $hd->delete();
+        $ht->delete();
 
         return response()->json([
             'meta' => [
                 'status' => 'success',
-                'message' => 'HD deleted successfully',
+                'message' => 'HT deleted successfully',
                 'statusCode' => 200,
             ],
             'data' => null,

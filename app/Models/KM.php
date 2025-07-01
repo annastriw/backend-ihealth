@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class HD extends BaseModel
+class KM extends BaseModel
 {
     use HasFactory;
-    protected $table = 'hds';
+
+    protected $table = 'kms';
 
     public function subModule()
     {
