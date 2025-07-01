@@ -37,7 +37,7 @@ class PersonalInformationController extends Controller
             'is_married' => 'required|boolean',
             'last_education' => 'required|string|max:255',
             'origin_disease' => 'required|string|max:255',
-            'patient_type' => 'required|string|max:255',
+            
             'disease_duration' => 'required|string|max:255',
             'history_therapy' => 'required|string|max:255',
         ]);
@@ -54,7 +54,7 @@ class PersonalInformationController extends Controller
                 'is_married' => $request->is_married,
                 'last_education' => $request->last_education,
                 'origin_disease' => $request->origin_disease,
-                'patient_type' => $request->patient_type,
+               
                 'disease_duration' => $request->disease_duration,
                 'dialisis_duration' => $request->dialisis_duration,
                 'history_therapy' => $request->history_therapy,
@@ -117,7 +117,7 @@ class PersonalInformationController extends Controller
             'is_married' => 'sometimes|boolean',
             'last_education' => 'sometimes|string|max:255',
             'origin_disease' => 'sometimes|string|max:255',
-            'patient_type' => 'sometimes|string|max:255',
+           
             'disease_duration' => 'sometimes|string|max:255',
             'history_therapy' => 'sometimes|string|max:255',
         ]);

@@ -22,40 +22,20 @@ class ModuleController extends Controller
         ]);
     }
 
-    public function getAllModuleUsers(Request $request)
-    {
-        $query = Module::query();
+    public function getAllModules(Request $request)
+{
+    $modules = Module::all(); // ambil semua modul tanpa filter
 
-        // check if has query parameter
-        if ($request->has('type')) {
-            $type = $request->get('type');
+    return response()->json([
+        'meta' => [
+            'status' => 'success',
+            'message' => 'Data semua modul berhasil diambil',
+            'statusCode' => 200,
+        ],
+        'data' => $modules,
+    ]);
+}
 
-            // validation for type
-            if (!in_array($type, ['hd', 'capd'])) {
-                return response()->json([
-                    'meta' => [
-                        'status' => 'error',
-                        'message' => 'Invalid type parameter. Allowed values are hd or capd.',
-                        'statusCode' => 400,
-                    ],
-                    'data' => [],
-                ], 400);
-            }
-
-            $query->where('type', $type);
-        }
-
-        $modules = $query->get();
-
-        return response()->json([
-            'meta' => [
-                'status' => 'success',
-                'message' => 'Successfully get all modules',
-                'statusCode' => 200,
-            ],
-            'data' => $modules,
-        ]);
-    }
 
     public function store(Request $request)
     {
