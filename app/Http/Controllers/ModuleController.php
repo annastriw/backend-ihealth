@@ -108,7 +108,7 @@ class ModuleController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:hd,capd',
+            'type' => 'required|in:ht,dm,km',
         ]);
 
         $module->update($validated);
@@ -153,7 +153,7 @@ class ModuleController extends Controller
     public function getByType(Request $request)
     {
         $validated = $request->validate([
-            'type' => 'required|in:hd,capd',
+            'type' => 'required|in:ht,dm,km',
         ]);
 
         $modules = Module::where('type', $validated['type'])->get();

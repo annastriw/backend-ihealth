@@ -13,19 +13,24 @@ class SubModule extends BaseModel
         return $this->belongsTo(Module::class);
     }
 
-    public function capd()
+    public function ht()
     {
-        return $this->hasMany(CAPD::class);
+        return $this->hasMany(HT::class);
+    }
+
+    public function dm()
+    {
+        return $this->hasMany(DM::class);
+    }
+
+    public function km()
+    {
+        return $this->hasMany(KM::class);
     }
 
     public function moduleContents()
     {
         return $this->hasMany(ModuleContent::class);
-    }
-
-    public function hd()
-    {
-        return $this->hasMany(HD::class);
     }
 
     public function postTests()

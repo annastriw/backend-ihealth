@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CAPD extends BaseModel
+class DM extends BaseModel
 {
     use HasFactory;
-    protected $table = 'capds';
+    protected $table = 'dms';
 
     public function subModule()
     {

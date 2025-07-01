@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('module_contents', function (Blueprint $table) {
+        Schema::create('dms', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('sub_module_id');
             $table->string('name');
             $table->string('video_url');
             $table->string('file_path');
             $table->text('content');
-            $table->enum('type', ['ht', 'dm', 'km']); // Updated types
             $table->timestamps();
         });
     }
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('module_contents');
+        Schema::dropIfExists('dms');
     }
 };

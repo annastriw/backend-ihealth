@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('hds', function (Blueprint $table) {
+        Schema::create('hts', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->foreignUuid('sub_module_id');
             $table->string('name');
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('hds');
+        Schema::dropIfExists('hts');
     }
 };
