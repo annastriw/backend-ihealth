@@ -86,6 +86,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/module-content/{id}', [ModuleContentController::class, 'show']);
     Route::get('/module-content/sub/{sub_module_id}', [ModuleContentController::class, 'getBySubModule']);
 
+    Route::post('/module-content/{id}/opened', [ModuleContentController::class, 'markAsOpened']);
+
+
     // History screening public routes (read access)
     Route::get('/screening/history', [UserHistoryScreeningController::class, 'index']);
     Route::get('/screening/history/{id}', [UserHistoryScreeningController::class, 'show']);

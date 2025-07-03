@@ -171,4 +171,24 @@ class ModuleContentController extends Controller
             'data' => null,
         ]);
     }
+
+    public function markAsOpened($id)
+{
+    $content = ModuleContent::find($id);
+
+    if (!$content) {
+        return response()->json(['message' => 'Not found'], 404);
+    }
+
+    // Gunakan now() dengan timezone Jakarta
+    $content->last_opened_at = now()->setTimezone('Asia/Jakarta');
+    $content->save();
+
+    return response()->json([
+        'message' => 'Updated',
+        'last_opened_at' => $content->last_opened_at->toIso8601String(),
+    ]);
+}
+
+
 }
