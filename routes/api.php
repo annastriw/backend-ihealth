@@ -55,6 +55,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/modules', [ModuleController::class, 'index']);
     Route::get('/modules/users', [ModuleController::class, 'getAllModules']);
     Route::get('/modules/users', [ModuleController::class, 'getByType']);
+    Route::get('/modules/users', [ModuleController::class, 'users']);
 
     Route::get('/modules/type', [ModuleController::class, 'getByType']);
     Route::get('/modules/{id}', [ModuleController::class, 'show']);
