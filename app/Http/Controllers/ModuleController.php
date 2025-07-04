@@ -174,4 +174,21 @@ class ModuleController extends Controller
     ]);
 }
 
+public function users(Request $request)
+{
+    $type = $request->query('type');
+
+    $query = Module::with('subModules');
+
+    if ($type) {
+        $query->where('type', $type);
+    }
+
+    $modules = $query->get();
+
+    return response()->json([
+        'data' => $modules,
+    ]);
+}
+
 }
