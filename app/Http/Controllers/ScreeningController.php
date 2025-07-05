@@ -7,47 +7,58 @@ use Illuminate\Http\Request;
 
 class ScreeningController extends Controller
 {
-    public function index()
-    {
-        $screening = Screening::all();
+    public function index(Request $request)
+{
+    $query = Screening::query();
 
-        return response()->json([
-            'meta' => ['status' => 'success'],
-            'data' => $screening,
-        ]);
+    if ($request->has('type')) {
+        $type = $request->query('type');
+        $query->where('type', $type);
     }
+
+    $screenings = $query->get();
+
+    return response()->json([
+        'meta' => ['status' => 'success'],
+        'data' => $screenings,
+    ]);
+}
+
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'question_set_id' => 'required|exists:question_sets,id',
-            'name' => 'required|string|max:255',
+{
+    $request->validate([
+        'question_set_id' => 'required|exists:question_sets,id',
+        'name' => 'required|string|max:255',
+        'type' => 'required|string|in:HT,DM,KM', // ✅ tambahkan validasi type
+    ]);
+
+    try {
+        $screening = Screening::create([
+            'question_set_id' => $request->question_set_id,
+            'name' => $request->name,
+            'type' => $request->type, // ✅ tambahkan field type
         ]);
 
-        try {
-            $screening = Screening::create([
-                'question_set_id' => $request->question_set_id,
-                'name' => $request->name,
-            ]);
-
-            return response()->json([
-                'meta' => [
-                    'status' => 'success',
-                    'message' => 'Screening created successfully',
-                    'statusCode' => 201
-                ],
-                'data' => $screening,
-            ], 201);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'meta' => [
-                    'status' => 'error',
-                    'message' => $th->getMessage(),
-                    'statusCode' => 500
-                ]
-            ], 500);
-        }
+        return response()->json([
+            'meta' => [
+                'status' => 'success',
+                'message' => 'Screening created successfully',
+                'statusCode' => 201
+            ],
+            'data' => $screening,
+        ], 201);
+    } catch (\Throwable $th) {
+        return response()->json([
+            'meta' => [
+                'status' => 'error',
+                'message' => $th->getMessage(),
+                'statusCode' => 500
+            ]
+        ], 500);
     }
+}
+
 
     public function show($id)
     {
@@ -95,11 +106,13 @@ class ScreeningController extends Controller
         $screening = Screening::findOrFail($id);
 
         $request->validate([
-            'question_set_id' => 'sometimes|exists:question_sets,id',
-            'name' => 'sometimes|string',
-        ]);
+    'question_set_id' => 'sometimes|exists:question_sets,id',
+    'name' => 'sometimes|string',
+    'type' => 'sometimes|string|in:HT,DM,KM', // ✅ tambahkan ini
+]);
 
-        $screening->update($request->only('name', 'question_set_id'));
+
+        $screening->update($request->only('name', 'question_set_id', 'type'));
 
         return response()->json([
             'meta' => ['status' => 'success', 'message' => 'Screening updated'],
