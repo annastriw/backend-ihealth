@@ -7,15 +7,23 @@ use Illuminate\Http\Request;
 
 class ScreeningController extends Controller
 {
-    public function index()
-    {
-        $screening = Screening::all();
+    public function index(Request $request)
+{
+    $query = Screening::query();
 
-        return response()->json([
-            'meta' => ['status' => 'success'],
-            'data' => $screening,
-        ]);
+    if ($request->has('type')) {
+        $type = $request->query('type');
+        $query->where('type', $type);
     }
+
+    $screenings = $query->get();
+
+    return response()->json([
+        'meta' => ['status' => 'success'],
+        'data' => $screenings,
+    ]);
+}
+
 
     public function store(Request $request)
 {
