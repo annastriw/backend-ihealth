@@ -146,31 +146,36 @@ class ModuleContentController extends Controller
     }
 
     public function destroy($id)
-    {
-        $content = ModuleContent::find($id);
+{
+    $content = ModuleContent::find($id);
 
-        if (!$content) {
-            return response()->json([
-                'meta' => [
-                    'status' => 'error',
-                    'message' => 'Module Content not found',
-                    'statusCode' => 404,
-                ],
-                'data' => null,
-            ], 404);
-        }
-
-        $content->delete();
-
+    if (!$content) {
         return response()->json([
             'meta' => [
-                'status' => 'success',
-                'message' => 'Module Content deleted successfully',
-                'statusCode' => 200,
+                'status' => 'error',
+                'message' => 'Module Content not found',
+                'statusCode' => 404,
             ],
             'data' => null,
-        ]);
+        ], 404);
     }
+
+    // Hapus file PDF jika ada
+    if ($content->file_path && Storage::disk('public')->exists($content->file_path)) {
+        Storage::disk('public')->delete($content->file_path);
+    }
+
+    $content->delete();
+
+    return response()->json([
+        'meta' => [
+            'status' => 'success',
+            'message' => 'Module Content deleted successfully',
+            'statusCode' => 200,
+        ],
+        'data' => null,
+    ]);
+}
 
     public function markAsOpened($id)
 {

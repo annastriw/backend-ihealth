@@ -182,7 +182,7 @@ Route::middleware('auth:api')->group(function () {
         // Module content admin routes
         Route::post('/module-content', [ModuleContentController::class, 'store']);
         Route::put('/module-content/{id}', [ModuleContentController::class, 'update']);
-        Route::delete('/module-content/{id}', [ModuleContentController::class, 'destroy']);
+        Route::delete('/module-contents/{id}', [ModuleContentController::class, 'destroy']);
 
         // Screening admin routes
         Route::post('/screening', [ScreeningController::class, 'store']);
