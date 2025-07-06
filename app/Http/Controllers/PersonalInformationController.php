@@ -40,6 +40,9 @@ class PersonalInformationController extends Controller
             
             'disease_duration' => 'required|string|max:255',
             'history_therapy' => 'required|string|max:255',
+            'smoking_history' => 'required|string|max:255',
+            'body_mass_index' => 'required|string|max:255',
+            'heart_disease_history' => 'required|string|max:255',
         ]);
 
         try {
@@ -58,6 +61,9 @@ class PersonalInformationController extends Controller
                 'disease_duration' => $request->disease_duration,
                 'dialisis_duration' => $request->dialisis_duration,
                 'history_therapy' => $request->history_therapy,
+                'smoking_history' => $request->smoking_history,
+                'body_mass_index' => $request->body_mass_index,
+                'heart_disease_history' => $request->heart_disease_history,
             ]);
 
             return response()->json([
@@ -120,6 +126,9 @@ class PersonalInformationController extends Controller
            
             'disease_duration' => 'sometimes|string|max:255',
             'history_therapy' => 'sometimes|string|max:255',
+            'smoking_history' => 'sometimes|string|max:255',
+            'body_mass_index' => 'sometimes|string|max:255',
+            'heart_disease_history' => 'sometimes|string|max:255',
         ]);
 
         $personalInformation->update($request->all());
