@@ -51,7 +51,9 @@ class SubModuleController extends Controller
 
     public function getByModule($module_id)
     {
-        $subModules = SubModule::where('module_id', $module_id)->get();
+        $subModules = SubModule::where('module_id', $module_id)
+        ->orderBy('created_at', 'asc')
+        ->get();
 
         return response()->json([
             'meta' => [
