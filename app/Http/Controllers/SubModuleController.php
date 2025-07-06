@@ -9,18 +9,20 @@ use Illuminate\Support\Str;
 class SubModuleController extends Controller
 {
     public function index()
-    {
-        $subModules = SubModule::with('module')->orderBy('created_at', 'desc')->get();
+{
+    $subModules = SubModule::with('module')
+        ->orderBy('created_at', 'asc')
+        ->get();
 
-        return response()->json([
-            'meta' => [
-                'status' => 'success',
-                'message' => 'Successfully retrieved all sub-modules',
-                'statusCode' => 200,
-            ],
-            'data' => $subModules,
-        ]);
-    }
+    return response()->json([
+        'meta' => [
+            'status' => 'success',
+            'message' => 'Successfully retrieved all sub-modules',
+            'statusCode' => 200,
+        ],
+        'data' => $subModules,
+    ]);
+}
 
     public function store(Request $request)
     {

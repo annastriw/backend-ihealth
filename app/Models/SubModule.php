@@ -29,9 +29,10 @@ class SubModule extends BaseModel
     }
 
     public function moduleContents()
-    {
-        return $this->hasMany(ModuleContent::class);
-    }
+{
+    return $this->hasMany(ModuleContent::class)->orderBy('created_at', 'asc');
+}
+
 
     public function postTests()
     {
