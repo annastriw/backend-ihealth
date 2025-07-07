@@ -10,7 +10,7 @@ class DiscussionController extends Controller
 {
     public function index()
     {
-        $discussions = Discussion::with('comments.user')->orderBy('created_at', 'desc')->get();
+        $discussions = Discussion::with('comments.user')->orderBy('created_at', 'asc')->get();
 
         $formatted = $discussions->map(function ($discussion) {
             return [
