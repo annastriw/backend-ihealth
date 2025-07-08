@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
         ModuleSeeder::class,
         SubModuleSeeder::class,
         DiscussionSeeder::class,
+        UsersTableSeeder::class,
     ]);
 }
 }
