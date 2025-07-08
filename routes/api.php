@@ -40,10 +40,15 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
+
+
+
 Route::middleware('auth:api')->group(function () {
     Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
     Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
     Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
+    Route::get('/auth/location', [UserController::class, 'getLocation']);
+    Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
 
     // Get FAQ for users
     Route::get('/faqs/{id}', [FAQController::class, 'show']);
@@ -54,6 +59,9 @@ Route::middleware('auth:api')->group(function () {
 
     Route::get('/modules', [ModuleController::class, 'index']);
     Route::get('/modules/users', [ModuleController::class, 'getAllModules']);
+    Route::get('/modules/users', [ModuleController::class, 'getByType']);
+    Route::get('/modules/users', [ModuleController::class, 'users']);
+
     Route::get('/modules/type', [ModuleController::class, 'getByType']);
     Route::get('/modules/{id}', [ModuleController::class, 'show']);
 
@@ -85,6 +93,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/module-content', [ModuleContentController::class, 'index']);
     Route::get('/module-content/{id}', [ModuleContentController::class, 'show']);
     Route::get('/module-content/sub/{sub_module_id}', [ModuleContentController::class, 'getBySubModule']);
+
+    Route::post('/module-content/{id}/opened', [ModuleContentController::class, 'markAsOpened']);
+
 
     // History screening public routes (read access)
     Route::get('/screening/history', [UserHistoryScreeningController::class, 'index']);

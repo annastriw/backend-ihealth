@@ -151,20 +151,44 @@ class ModuleController extends Controller
     }
 
     public function getByType(Request $request)
-    {
-        $validated = $request->validate([
-            'type' => 'required|in:ht,dm,km',
-        ]);
+{
+    $validated = $request->validate([
+        'type' => 'required|in:HT,DM,KM',
+    ]);
 
-        $modules = Module::where('type', $validated['type'])->get();
+    $modules = Module::with([
+        'subModules.moduleContents',
+        'subModules.preTests',
+        'subModules.postTests',
+    ])
+    ->where('type', $validated['type'])
+    ->get();
 
-        return response()->json([
-            'meta' => [
-                'status' => 'success',
-                'message' => 'Modul retrieved successfully',
-                'statusCode' => 200,
-            ],
-            'data' => $modules,
-        ]);
+    return response()->json([
+        'meta' => [
+            'status' => 'success',
+            'message' => 'Modul retrieved successfully',
+            'statusCode' => 200,
+        ],
+        'data' => $modules,
+    ]);
+}
+
+public function users(Request $request)
+{
+    $type = $request->query('type');
+
+    $query = Module::with('subModules');
+
+    if ($type) {
+        $query->where('type', $type);
     }
+
+    $modules = $query->get();
+
+    return response()->json([
+        'data' => $modules,
+    ]);
+}
+
 }

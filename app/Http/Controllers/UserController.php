@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\UpdateUserLocationRequest;
+
 
 
 class UserController extends Controller
@@ -245,5 +247,40 @@ public function getAllUsersLocationInfo()
     ]);
 }
 
+public function getLocation(Request $request)
+{
+    $user = $request->user();
+
+    return response()->json([
+        'meta' => [
+            'status' => 'success',
+            'message' => 'Data lokasi user berhasil diambil',
+            'statusCode' => 200,
+        ],
+        'data' => [
+            'latitude' => $user->latitude,
+            'longitude' => $user->longitude,
+            'address' => $user->address,
+            'kelurahan' => $user->kelurahan,
+            'rw' => $user->rw,
+        ],
+    ]);
+}
+
+public function updateLocation(UpdateUserLocationRequest $request)
+{
+    $user = $request->user();
+
+    $user->update($request->validated());
+
+    return response()->json([
+        'meta' => [
+            'status' => 'success',
+            'message' => 'Lokasi berhasil diperbarui',
+            'statusCode' => 200,
+        ],
+        'data' => $user
+    ]);
+}
 
 }

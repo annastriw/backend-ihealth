@@ -6,6 +6,7 @@ use App\Models\ModuleContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class ModuleContentController extends Controller
 {
@@ -41,7 +42,7 @@ class ModuleContentController extends Controller
     {
         $request->validate([
             'sub_module_id' => 'required|uuid|exists:sub_modules,id',
-            'file_path' => 'required|file',
+            'file_path' => 'required|file|mimes:pdf|max:10240',
             'name' => 'required|string',
             'content' => 'required|string',
             'video_url' => 'required|string',
@@ -96,54 +97,81 @@ class ModuleContentController extends Controller
     }
 
     public function update(Request $request, $id)
-    {
-        $content = ModuleContent::find($id);
+{
+    Log::info('🛠️ Update request masuk', [
+        'id' => $id,
+        'request_data_post' => $request->post(),
+        'request_data_all' => $request->all(),
+        'request_keys' => $request->keys(),
+        'has_file' => $request->hasFile('file_path'),
+    ]);
 
-        if (!$content) {
-            return response()->json([
-                'meta' => [
-                    'status' => 'error',
-                    'message' => 'Module Content not found',
-                    'statusCode' => 404,
-                ],
-                'data' => null,
-            ], 404);
-        }
+    $content = ModuleContent::find($id);
 
-        $request->validate([
-            'sub_module_id' => 'nullable|uuid',
-            'file' => 'nullable|file',
-            'name' => 'nullable|string',
-            'content' => 'nullable|string',
-            'video_url' => 'nullable|string',
-            'type' => 'nullable|in:ht,dm,km',
-        ]);
-
-        if ($request->hasFile('file')) {
-            if ($content->file_path && Storage::disk('public')->exists($content->file_path)) {
-                Storage::disk('public')->delete($content->file_path);
-            }
-
-            $content->file_path = $request->file('file')->store('module_contents', 'public');
-        }
-
-        $content->sub_module_id = $request->sub_module_id ?? $content->sub_module_id;
-        $content->name = $request->name ?? $content->name;
-        $content->content = $request->content ?? $content->content;
-        $content->video_url = $request->video_url ?? $content->video_url;
-        $content->type = $request->type ?? $content->type;
-
-        $content->save();
-
+    if (!$content) {
         return response()->json([
             'meta' => [
-                'status' => 'success',
-                'message' => 'Module Content updated successfully',
-                'statusCode' => 200,
+                'status' => 'error',
+                'message' => 'Module Content not found',
+                'statusCode' => 404,
             ],
-            'data' => $content,
-        ]);
+            'data' => null,
+        ], 404);
     }
+
+    $validated = $request->validate([
+        'sub_module_id' => 'nullable|uuid|exists:sub_modules,id',
+        'file_path' => 'nullable|file|mimes:pdf|max:10240',
+        'name' => 'nullable|string',
+        'content' => 'nullable|string',
+        'video_url' => 'nullable|string',
+        'type' => 'nullable|in:ht,dm,km',
+    ]);
+
+    Log::info('📥 Validated data', $validated);
+    Log::info('📄 Data sebelum update', $content->toArray());
+
+    // Handle file jika ada
+    if ($request->hasFile('file_path')) {
+        if ($content->file_path && Storage::disk('public')->exists($content->file_path)) {
+            Storage::disk('public')->delete($content->file_path);
+        }
+
+        $path = $request->file('file_path')->store('module_contents', 'public');
+        $content->file_path = $path;
+
+        Log::info('📁 File PDF baru disimpan di', ['path' => $path]);
+    } else {
+        Log::info('ℹ️ Tidak ada file PDF baru diupload');
+    }
+
+    // Update nilai-nilai yang dikirim
+    foreach (['sub_module_id', 'name', 'content', 'video_url', 'type'] as $field) {
+        if ($request->has($field)) {
+            $content->$field = $request->input($field);
+        }
+    }
+
+    // ⛔ Cegah perubahan yang tidak tersimpan jika data tidak berubah
+    if ($content->isDirty()) {
+        $content->save();
+        Log::info('✅ Data berhasil diupdate karena ada perubahan', $content->fresh()->toArray());
+    } else {
+        // Paksa update timestamp
+        $content->touch();
+        Log::info('ℹ️ Tidak ada perubahan data, hanya update timestamp', $content->fresh()->toArray());
+    }
+
+    return response()->json([
+        'meta' => [
+            'status' => 'success',
+            'message' => 'Module Content updated successfully',
+            'statusCode' => 200,
+        ],
+        'data' => $content,
+    ]);
+}
+
 
     public function destroy($id)
     {
@@ -160,6 +188,10 @@ class ModuleContentController extends Controller
             ], 404);
         }
 
+        if ($content->file_path && Storage::disk('public')->exists($content->file_path)) {
+            Storage::disk('public')->delete($content->file_path);
+        }
+
         $content->delete();
 
         return response()->json([
@@ -169,6 +201,25 @@ class ModuleContentController extends Controller
                 'statusCode' => 200,
             ],
             'data' => null,
+        ]);
+    }
+
+    public function markAsOpened($id)
+    {
+        $content = ModuleContent::find($id);
+
+        if (!$content) {
+            return response()->json([
+                'message' => 'Not found',
+            ], 404);
+        }
+
+        $content->last_opened_at = now()->setTimezone('Asia/Jakarta');
+        $content->save();
+
+        return response()->json([
+            'message' => 'Updated',
+            'last_opened_at' => $content->last_opened_at->toIso8601String(),
         ]);
     }
 }

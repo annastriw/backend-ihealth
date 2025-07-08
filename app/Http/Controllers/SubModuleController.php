@@ -9,18 +9,20 @@ use Illuminate\Support\Str;
 class SubModuleController extends Controller
 {
     public function index()
-    {
-        $subModules = SubModule::with('module')->orderBy('created_at', 'desc')->get();
+{
+    $subModules = SubModule::with('module')
+        ->orderBy('created_at', 'asc')
+        ->get();
 
-        return response()->json([
-            'meta' => [
-                'status' => 'success',
-                'message' => 'Successfully retrieved all sub-modules',
-                'statusCode' => 200,
-            ],
-            'data' => $subModules,
-        ]);
-    }
+    return response()->json([
+        'meta' => [
+            'status' => 'success',
+            'message' => 'Successfully retrieved all sub-modules',
+            'statusCode' => 200,
+        ],
+        'data' => $subModules,
+    ]);
+}
 
     public function store(Request $request)
     {
@@ -49,7 +51,9 @@ class SubModuleController extends Controller
 
     public function getByModule($module_id)
     {
-        $subModules = SubModule::where('module_id', $module_id)->get();
+        $subModules = SubModule::where('module_id', $module_id)
+        ->orderBy('created_at', 'asc')
+        ->get();
 
         return response()->json([
             'meta' => [
@@ -62,29 +66,33 @@ class SubModuleController extends Controller
     }
 
     public function show($id)
-    {
-        $subModule = SubModule::with('moduleContents')->find($id);
+{
+    $subModule = SubModule::with([
+        'moduleContents',
+        'preTests',
+        'postTests'
+    ])->find($id);
 
-        if (!$subModule) {
-            return response()->json([
-                'meta' => [
-                    'status' => 'error',
-                    'message' => 'Sub Module not found',
-                    'statusCode' => 404,
-                ],
-                'data' => null,
-            ], 404);
-        }
-
+    if (!$subModule) {
         return response()->json([
             'meta' => [
-                'status' => 'success',
-                'message' => 'Module found',
-                'statusCode' => 200,
+                'status' => 'error',
+                'message' => 'Submodul tidak ditemukan',
+                'statusCode' => 404
             ],
-            'data' => $subModule,
-        ]);
+            'data' => null
+        ], 404);
     }
+
+    return response()->json([
+        'meta' => [
+            'status' => 'success',
+            'message' => 'Submodul ditemukan',
+            'statusCode' => 200
+        ],
+        'data' => $subModule
+    ]);
+}
 
     public function update(Request $request, $id)
     {
