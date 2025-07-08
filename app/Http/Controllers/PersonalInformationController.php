@@ -41,7 +41,7 @@ class PersonalInformationController extends Controller
             'disease_duration' => 'required|string|max:255',
             'history_therapy' => 'required|string|max:255',
             'smoking_history' => 'required|string|max:255',
-            'body_mass_index' => 'required|string|max:255',
+            'bmi' => 'required|string|max:255',
             'heart_disease_history' => 'required|string|max:255',
         ]);
 
@@ -62,7 +62,7 @@ class PersonalInformationController extends Controller
                 'dialisis_duration' => $request->dialisis_duration,
                 'history_therapy' => $request->history_therapy,
                 'smoking_history' => $request->smoking_history,
-                'body_mass_index' => $request->body_mass_index,
+                'bmi' => $request->bmi,
                 'heart_disease_history' => $request->heart_disease_history,
             ]);
 
@@ -127,7 +127,7 @@ class PersonalInformationController extends Controller
             'disease_duration' => 'sometimes|string|max:255',
             'history_therapy' => 'sometimes|string|max:255',
             'smoking_history' => 'sometimes|string|max:255',
-            'body_mass_index' => 'sometimes|string|max:255',
+            'bmi' => 'sometimes|string|max:255',
             'heart_disease_history' => 'sometimes|string|max:255',
         ]);
 
