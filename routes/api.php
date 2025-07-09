@@ -23,6 +23,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserHistoryPostTestController;
 use App\Http\Controllers\UserHistoryPreTestController;
 use App\Http\Controllers\UserHistoryScreeningController;
+use App\Http\Controllers\ScreeningScoringController;
+use App\Http\Controllers\UserAnswerScreeningScoringController;
+use App\Http\Controllers\UserHistoryScreeningScoringController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -107,6 +110,12 @@ Route::middleware('auth:api')->group(function () {
 
     // Submit screening routes
     Route::post('/screening/submit', [UserAnswerScreeningController::class, 'submit']);
+
+    Route::get('/screening-scorings', [ScreeningScoringController::class, 'index']);
+    Route::get('/screening-scorings/{id}', [ScreeningScoringController::class, 'show']);
+    Route::post('/screening-scorings/submit', [UserAnswerScreeningScoringController::class, 'submit']);
+    Route::get('/screening-scorings/history', [UserHistoryScreeningScoringController::class, 'index']);
+    Route::get('/screening-scorings/history/{id}', [UserHistoryScreeningScoringController::class, 'show']);
 
     // History pre test public routes (read access)
     Route::get('/pre-test/history', [UserHistoryPreTestController::class, 'index']);
@@ -194,6 +203,10 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/screening/{id}', [ScreeningController::class, 'update']);
         Route::delete('/screening/{id}', [ScreeningController::class, 'destroy']);
 
+        Route::post('/screening-scorings', [ScreeningScoringController::class, 'store']);
+        Route::put('/screening-scorings/{id}', [ScreeningScoringController::class, 'update']);
+        Route::delete('/screening-scorings/{id}', [ScreeningScoringController::class, 'destroy']);
+
         // Pre Test admin routes
         Route::post('/pre-test', [PreTestController::class, 'store']);
         Route::put('/pre-test/{id}', [PreTestController::class, 'update']);
@@ -231,6 +244,9 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/post-test', [UserHistoryPostTestController::class, 'getAllHistory']);
             Route::get('/post-test/users/{postTestId}', [UserHistoryPostTestController::class, 'getByPostTestId']);
             Route::delete('/post-test/users/history/{id}', [UserHistoryPostTestController::class, 'destroy']);
+            Route::get('/screening-scorings', [UserHistoryScreeningScoringController::class, 'getAllHistory']);
+            Route::get('/screening-scorings/users/{screeningScoringId}', [UserHistoryScreeningScoringController::class, 'getByScreeningId']);
+            Route::delete('/screening-scorings/users/history/{id}', [UserHistoryScreeningScoringController::class, 'destroy']);
         });
 
         // Users admin routes

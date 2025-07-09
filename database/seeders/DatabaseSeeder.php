@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
         SubModuleSeeder::class,
         DiscussionSeeder::class,
         UsersTableSeeder::class,
+
+        ScreeningScoringSeeder::class,
     ]);
 }
 }
