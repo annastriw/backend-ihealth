@@ -36,6 +36,7 @@ class UserHistoryScreeningScoringController extends Controller
             'data' => [
                 'id' => $history->id,
                 'sum_score' => $history->sum_score,
+                'created_at' => $history->created_at->toDateTimeString(),
                 'user' => $history->user->only(['id', 'name']),
                 'screening' => $history->screening->only(['id', 'name', 'type']),
                 'answers' => $history->answers->map(function ($ans) {
@@ -101,5 +102,4 @@ class UserHistoryScreeningScoringController extends Controller
 
         return response()->json(['message' => 'History deleted']);
     }
-
 }
