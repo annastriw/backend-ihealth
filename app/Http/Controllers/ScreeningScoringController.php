@@ -7,11 +7,22 @@ use Illuminate\Http\Request;
 
 class ScreeningScoringController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = ScreeningScoring::with('questionSet');
+
+        // Filter berdasarkan type jika query ?type= tersedia
+        if ($request->has('type')) {
+            $type = strtoupper($request->query('type'));
+
+            if (in_array($type, ['HT', 'DM'])) {
+                $query->where('type', $type);
+            }
+        }
+
         return response()->json([
             'meta' => ['status' => 'success'],
-            'data' => ScreeningScoring::with('questionSet')->get()
+            'data' => $query->get()
         ]);
     }
 
