@@ -92,4 +92,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(DiscussionCommentAnswer::class);
     }
+
+    public function openedModuleContents()
+    {
+        return $this->hasMany(UserModuleContentOpen::class);
+    }
 }

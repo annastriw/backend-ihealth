@@ -26,6 +26,8 @@ use App\Http\Controllers\UserHistoryScreeningController;
 use App\Http\Controllers\ScreeningScoringController;
 use App\Http\Controllers\UserAnswerScreeningScoringController;
 use App\Http\Controllers\UserHistoryScreeningScoringController;
+use App\Http\Controllers\UserModuleContentOpenController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -97,7 +99,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/module-content/{id}', [ModuleContentController::class, 'show']);
     Route::get('/module-content/sub/{sub_module_id}', [ModuleContentController::class, 'getBySubModule']);
 
-    Route::post('/module-content/{id}/opened', [ModuleContentController::class, 'markAsOpened']);
+    Route::post('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'updateLastOpened']);
+    Route::get('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'getLastOpened']);
 
 
     // History screening public routes (read access)
