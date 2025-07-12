@@ -114,11 +114,12 @@ Route::middleware('auth:api')->group(function () {
     // Submit screening routes
     Route::post('/screening/submit', [UserAnswerScreeningController::class, 'submit']);
 
-    Route::get('/screening-scorings', [ScreeningScoringController::class, 'index']);
-    Route::get('/screening-scorings/{id}', [ScreeningScoringController::class, 'show']);
-    Route::post('/screening-scorings/submit', [UserAnswerScreeningScoringController::class, 'submit']);
     Route::get('/screening-scorings/history', [UserHistoryScreeningScoringController::class, 'index']);
     Route::get('/screening-scorings/history/{id}', [UserHistoryScreeningScoringController::class, 'show']);
+    Route::post('/screening-scorings/submit', [UserAnswerScreeningScoringController::class, 'submit']);
+
+    Route::get('/screening-scorings', [ScreeningScoringController::class, 'index']);
+    Route::get('/screening-scorings/{id}', [ScreeningScoringController::class, 'show']);
 
     // History pre test public routes (read access)
     Route::get('/pre-test/history', [UserHistoryPreTestController::class, 'index']);
