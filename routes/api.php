@@ -48,12 +48,12 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
 
 
-Route::middleware('auth:api')->group(function () {
-    Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
-    Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
-    Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
-    Route::get('/auth/location', [UserController::class, 'getLocation']);
-    Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
+    Route::middleware('auth:api')->group(function () {
+        Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
+        Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
+        Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
+        Route::get('/auth/location', [UserController::class, 'getLocation']);
+        Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
 
     // Get FAQ for users
     Route::get('/faqs/{id}', [FAQController::class, 'show']);
