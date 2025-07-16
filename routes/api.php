@@ -177,6 +177,8 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/users/location/maps', [UserController::class, 'getAllUsersLocationInfo']);
 
     Route::middleware(['role:admin'])->group(function () {
+
+        Route::get('/admin/location/{id}', [UserController::class, 'getUserLocationById']);
         // FAQ admin routes
         Route::post('/faqs', [FAQController::class, 'store']);
         Route::put('/faqs/{id}', [FAQController::class, 'update']);

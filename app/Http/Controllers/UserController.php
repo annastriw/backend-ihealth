@@ -306,4 +306,37 @@ public function getLocation(Request $request)
             'data' => $user
         ]);
     }
+
+    public function getUserLocationById($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'meta' => [
+                    'status' => 'error',
+                    'message' => 'User tidak ditemukan',
+                    'statusCode' => 404
+                ],
+                'data' => null
+            ], 404);
+        }
+
+        return response()->json([
+            'meta' => [
+                'status' => 'success',
+                'message' => 'Data lokasi user berhasil diambil',
+                'statusCode' => 200
+            ],
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'latitude' => $user->latitude,
+                'longitude' => $user->longitude,
+                'address' => $user->address,
+                'kelurahan' => $user->kelurahan,
+                'rw' => $user->rw,
+            ]
+        ]);
+    }
     }
