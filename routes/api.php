@@ -57,6 +57,8 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/screening-dass/submit', [ScreeningDASSController::class, 'submit']);
         Route::get('/screening-dass/latest', [ScreeningDASSController::class, 'latest']);
 
+        Route::get('/screening-dass-histories/{id}', [ScreeningDASSController::class, 'show']);
+
     // Get FAQ for users
     Route::get('/faqs/{id}', [FAQController::class, 'show']);
     Route::get('/faqs', [FAQController::class, 'index']);

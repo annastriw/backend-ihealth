@@ -1,0 +1,23 @@
+{
+  "Depresi": {
+    "Normal": "Tidak ada tanda-tanda depresi.",
+    "Ringan": "Gejala depresi ringan.",
+    "Sedang": "Gejala depresi terasa dan mulai mengganggu.",
+    "Parah": "Depresi berat yang mengganggu fungsi harian.",
+    "Sangat Parah": "Butuh penanganan profesional segera."
+  },
+  "Kecemasan": {
+    "Normal": "Tidak ada tanda-tanda kecemasan.",
+    "Ringan": "Kecemasan ringan namun masih adaptif.",
+    "Sedang": "Kecemasan meningkat, mulai mengganggu.",
+    "Parah": "Kecemasan berat, disarankan konsultasi.",
+    "Sangat Parah": "Kecemasan sangat berat, butuh intervensi profesional."
+  },
+  "Stres": {
+    "Normal": "Tidak ada tanda-tanda stres.",
+    "Ringan": "Stres ringan, bisa diatasi.",
+    "Sedang": "Stres sedang, mulai berdampak.",
+    "Parah": "Stres berat, disarankan coping efektif.",
+    "Sangat Parah": "Stres sangat berat, butuh bantuan profesional."
+  }
+}
