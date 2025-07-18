@@ -28,6 +28,7 @@ use App\Http\Controllers\ScreeningScoringController;
 use App\Http\Controllers\UserAnswerScreeningScoringController;
 use App\Http\Controllers\UserHistoryScreeningScoringController;
 use App\Http\Controllers\UserModuleContentOpenController;
+use App\Http\Controllers\ScreeningDASSController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +53,9 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
     Route::get('/auth/location', [UserController::class, 'getLocation']);
     Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
+
+        Route::post('/screening-dass/submit', [ScreeningDASSController::class, 'submit']);
+        Route::get('/screening-dass/latest', [ScreeningDASSController::class, 'latest']);
 
     // Get FAQ for users
     Route::get('/faqs/{id}', [FAQController::class, 'show']);
