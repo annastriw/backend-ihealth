@@ -60,6 +60,11 @@ Route::middleware('auth:api')->group(function () {
     // Get medical personal users
     Route::get('/users/medical-personal', [UserController::class, 'getMedicalPersonals']);
 
+    // PATIENT ROUTES - TAMBAHAN BARU
+    Route::get('/patients/search', [PatientController::class, 'searchPatients']);
+    Route::get('/patients/{id}', [PatientController::class, 'getPatientDetail']);
+    Route::get('/patients/check/columns', [PatientController::class, 'checkColumns']);
+
     Route::get('/modules', [ModuleController::class, 'index']);
     Route::get('/modules/users', [ModuleController::class, 'getAllModules']);
     Route::get('/modules/users', [ModuleController::class, 'getByType']);
