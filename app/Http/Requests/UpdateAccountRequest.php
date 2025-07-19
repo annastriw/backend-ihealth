@@ -26,7 +26,7 @@ class UpdateAccountRequest extends FormRequest
             'email' => 'email|unique:users,email,' . $this->user()->id,
             'username' => 'string|max:255|unique:users,username,' . $this->user()->id,
             'phone_number' => 'string|max:20|unique:users,phone_number,' . $this->user()->id,
-            'disease_type' => 'nullable|in:HT,DM,KM',
+            'disease_type' => 'nullable|in:HT,DM,ALL,GENERAL',
         ];
     }
 }

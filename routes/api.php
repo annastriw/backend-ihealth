@@ -24,6 +24,11 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserHistoryPostTestController;
 use App\Http\Controllers\UserHistoryPreTestController;
 use App\Http\Controllers\UserHistoryScreeningController;
+use App\Http\Controllers\ScreeningScoringController;
+use App\Http\Controllers\UserAnswerScreeningScoringController;
+use App\Http\Controllers\UserHistoryScreeningScoringController;
+use App\Http\Controllers\UserModuleContentOpenController;
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -47,15 +52,6 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
     Route::get('/auth/location', [UserController::class, 'getLocation']);
     Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
-
-    // ===== TAMBAHAN BARU: Patient Search Routes =====
-    Route::prefix('patients')->group(function () {
-        Route::get('/search', [PatientController::class, 'searchPatients']);
-        Route::get('/{patientId}', [PatientController::class, 'getPatientDetail']);
-    });
-    // Tambahan route untuk debug
-    Route::get('/check-columns', [PatientController::class, 'checkColumns']);
-    // ===== END TAMBAHAN BARU =====
 
     // Get FAQ for users
     Route::get('/faqs/{id}', [FAQController::class, 'show']);
@@ -103,6 +99,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/module-content/{id}/opened', [ModuleContentController::class, 'markAsOpened']);
 
+
     // History screening public routes (read access)
     Route::get('/screening/history', [UserHistoryScreeningController::class, 'index']);
     Route::get('/screening/history/{id}', [UserHistoryScreeningController::class, 'show']);
@@ -113,6 +110,13 @@ Route::middleware('auth:api')->group(function () {
 
     // Submit screening routes
     Route::post('/screening/submit', [UserAnswerScreeningController::class, 'submit']);
+
+    Route::get('/screening-scorings/history', [UserHistoryScreeningScoringController::class, 'index']);
+    Route::get('/screening-scorings/history/{id}', [UserHistoryScreeningScoringController::class, 'show']);
+    Route::post('/screening-scorings/submit', [UserAnswerScreeningScoringController::class, 'submit']);
+
+    Route::get('/screening-scorings', [ScreeningScoringController::class, 'index']);
+    Route::get('/screening-scorings/{id}', [ScreeningScoringController::class, 'show']);
 
     // History pre test public routes (read access)
     Route::get('/pre-test/history', [UserHistoryPreTestController::class, 'index']);
@@ -170,6 +174,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/users/location/maps', [UserController::class, 'getAllUsersLocationInfo']);
 
     Route::middleware(['role:admin'])->group(function () {
+
+        Route::get('/admin/location/{id}', [UserController::class, 'getUserLocationById']);
         // FAQ admin routes
         Route::post('/faqs', [FAQController::class, 'store']);
         Route::put('/faqs/{id}', [FAQController::class, 'update']);
@@ -199,6 +205,10 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/screening', [ScreeningController::class, 'store']);
         Route::put('/screening/{id}', [ScreeningController::class, 'update']);
         Route::delete('/screening/{id}', [ScreeningController::class, 'destroy']);
+
+        Route::post('/screening-scorings', [ScreeningScoringController::class, 'store']);
+        Route::put('/screening-scorings/{id}', [ScreeningScoringController::class, 'update']);
+        Route::delete('/screening-scorings/{id}', [ScreeningScoringController::class, 'destroy']);
 
         // Pre Test admin routes
         Route::post('/pre-test', [PreTestController::class, 'store']);
@@ -237,6 +247,9 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/post-test', [UserHistoryPostTestController::class, 'getAllHistory']);
             Route::get('/post-test/users/{postTestId}', [UserHistoryPostTestController::class, 'getByPostTestId']);
             Route::delete('/post-test/users/history/{id}', [UserHistoryPostTestController::class, 'destroy']);
+            Route::get('/screening-scorings', [UserHistoryScreeningScoringController::class, 'getAllHistory']);
+            Route::get('/screening-scorings/users/{screeningScoringId}', [UserHistoryScreeningScoringController::class, 'getByScreeningId']);
+            Route::delete('/screening-scorings/users/history/{id}', [UserHistoryScreeningScoringController::class, 'destroy']);
         });
 
         // Users admin routes

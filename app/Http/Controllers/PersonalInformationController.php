@@ -43,6 +43,8 @@ class PersonalInformationController extends Controller
             'smoking_history' => 'required|string|max:255',
             'bmi' => 'required|string|max:255',
             'heart_disease_history' => 'required|string|max:255',
+            'height' => 'required|string|max:10',
+            'weight' => 'required|string|max:10',
         ]);
 
         try {
@@ -64,6 +66,8 @@ class PersonalInformationController extends Controller
                 'smoking_history' => $request->smoking_history,
                 'bmi' => $request->bmi,
                 'heart_disease_history' => $request->heart_disease_history,
+                'height' => $request->height,
+                'weight' => $request->weight,
             ]);
 
             return response()->json([
@@ -129,6 +133,8 @@ class PersonalInformationController extends Controller
             'smoking_history' => 'sometimes|string|max:255',
             'bmi' => 'sometimes|string|max:255',
             'heart_disease_history' => 'sometimes|string|max:255',
+            'height' => 'sometimes|string|max:10',
+            'weight' => 'sometimes|string|max:10',
         ]);
 
         $personalInformation->update($request->all());

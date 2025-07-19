@@ -266,21 +266,77 @@ public function getLocation(Request $request)
         ],
     ]);
 }
+    public function updateLocation(Request $request)
+    {
+        $user = $request->user();
 
-public function updateLocation(UpdateUserLocationRequest $request)
-{
-    $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'meta' => [
+                    'status' => 'error',
+                    'message' => 'User tidak terautentikasi',
+                    'statusCode' => 401
+                ],
+                'data' => null
+            ], 401);
+        }
 
-    $user->update($request->validated());
+        $validated = $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'address' => 'nullable|string|max:255',
+            'kelurahan' => 'required|string|in:Pedalangan,Padangsari',
+            'rw' => 'required|string',
+        ]);
 
-    return response()->json([
-        'meta' => [
-            'status' => 'success',
-            'message' => 'Lokasi berhasil diperbarui',
-            'statusCode' => 200,
-        ],
-        'data' => $user
-    ]);
-}
+        $user->latitude = $validated['latitude'];
+        $user->longitude = $validated['longitude'];
+        $user->address = $validated['address'] ?? null;
+        $user->kelurahan = $validated['kelurahan'];
+        $user->rw = $validated['rw'];
 
-}
+        $user->save();
+
+        return response()->json([
+            'meta' => [
+                'status' => 'success',
+                'message' => 'Lokasi berhasil diperbarui',
+                'statusCode' => 200,
+            ],
+            'data' => $user
+        ]);
+    }
+
+    public function getUserLocationById($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'meta' => [
+                    'status' => 'error',
+                    'message' => 'User tidak ditemukan',
+                    'statusCode' => 404
+                ],
+                'data' => null
+            ], 404);
+        }
+
+        return response()->json([
+            'meta' => [
+                'status' => 'success',
+                'message' => 'Data lokasi user berhasil diambil',
+                'statusCode' => 200
+            ],
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'latitude' => $user->latitude,
+                'longitude' => $user->longitude,
+                'address' => $user->address,
+                'kelurahan' => $user->kelurahan,
+                'rw' => $user->rw,
+            ]
+        ]);
+    }
+    }
