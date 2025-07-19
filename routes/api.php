@@ -9,6 +9,7 @@ use App\Http\Controllers\FAQController;
 use App\Http\Controllers\HTController;
 use App\Http\Controllers\ModuleContentController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\PatientController; // Tambahkan import ini
 use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\PostTestController;
 use App\Http\Controllers\PreTestController;
@@ -40,15 +41,21 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-
-
-
 Route::middleware('auth:api')->group(function () {
     Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
     Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
     Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
     Route::get('/auth/location', [UserController::class, 'getLocation']);
     Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
+
+    // ===== TAMBAHAN BARU: Patient Search Routes =====
+    Route::prefix('patients')->group(function () {
+        Route::get('/search', [PatientController::class, 'searchPatients']);
+        Route::get('/{patientId}', [PatientController::class, 'getPatientDetail']);
+    });
+    // Tambahan route untuk debug
+    Route::get('/check-columns', [PatientController::class, 'checkColumns']);
+    // ===== END TAMBAHAN BARU =====
 
     // Get FAQ for users
     Route::get('/faqs/{id}', [FAQController::class, 'show']);
@@ -96,7 +103,6 @@ Route::middleware('auth:api')->group(function () {
 
     Route::post('/module-content/{id}/opened', [ModuleContentController::class, 'markAsOpened']);
 
-
     // History screening public routes (read access)
     Route::get('/screening/history', [UserHistoryScreeningController::class, 'index']);
     Route::get('/screening/history/{id}', [UserHistoryScreeningController::class, 'show']);
@@ -125,7 +131,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/post-test/history/{id}', [UserHistoryPostTestController::class, 'show']);
 
     // Post Test public routes (read access)
-    Route::get('/post-test', [PostTestController::class, 'index']);
+    Route::get('/post-test', [PreTestController::class, 'index']);
     Route::get('/post-test/{id}', [PostTestController::class, 'show']);
 
     // Post test public routes (read access)
