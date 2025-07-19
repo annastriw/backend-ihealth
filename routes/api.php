@@ -54,6 +54,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/auth/location', [UserController::class, 'getLocation']);
     Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
 
+        Route::get('/screening-dass', [ScreeningDASSController::class, 'index']);
+
         Route::post('/screening-dass/submit', [ScreeningDASSController::class, 'submit']);
         Route::get('/screening-dass/latest', [ScreeningDASSController::class, 'latest']);
 

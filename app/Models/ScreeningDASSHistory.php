@@ -18,11 +18,9 @@ class ScreeningDASSHistory extends Model
         'answers' => 'array',
     ];
 
-    // ➕ Konfigurasi UUID
     public $incrementing = false;
     protected $keyType = 'string';
 
-    // ➕ Generate UUID saat create
     protected static function boot()
     {
         parent::boot();

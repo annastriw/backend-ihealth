@@ -117,4 +117,23 @@ class ScreeningDASSController extends Controller
         ]);
     }
 
+    public function index(Request $request)
+    {
+        $user = $request->user();
+
+        $histories = ScreeningDASSHistory::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'created_at' => $item->created_at->toDateTimeString(),
+                ];
+            });
+
+        return response()->json([
+            'meta' => ['status' => 'success'],
+            'data' => $histories,
+        ]);
+    }
 }
