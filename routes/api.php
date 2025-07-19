@@ -193,9 +193,10 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware(['role:admin'])->group(function () {
 
         Route::get('/admin/screening-dass-histories', [ScreeningDASSReportController::class, 'getAllScreeningHistories']);
-        Route::get('/admin/screening-dass-histories/{id}', [ScreeningDASSReportController::class, 'getDetail']);
         Route::delete('/admin/screening-dass-histories/{id}', [ScreeningDASSReportController::class, 'deleteHistory']);
 
+        Route::get('/admin/screening-dass-histories/{id}', [ScreeningDASSController::class, 'showAdmin']);
+        
         Route::get('/admin/location/{id}', [UserController::class, 'getUserLocationById']);
         // FAQ admin routes
         Route::post('/faqs', [FAQController::class, 'store']);

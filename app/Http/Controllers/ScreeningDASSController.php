@@ -136,4 +136,64 @@ class ScreeningDASSController extends Controller
             'data' => $histories,
         ]);
     }
+
+    public function showAdmin($id)
+    {
+        $history = ScreeningDASSHistory::with('user')->findOrFail($id);
+
+        $answers = $history->answers;
+
+        // Hitung skor per kategori
+        $scores = [
+            'Depresi' => 0,
+            'Kecemasan' => 0,
+            'Stres' => 0,
+        ];
+
+        foreach ($answers as $answer) {
+            if (isset($scores[$answer['category']])) {
+                $scores[$answer['category']] += $answer['score'];
+            }
+        }
+
+        // Interpretasi skor per kategori
+        $interpretation = [];
+        foreach ($scores as $category => $score) {
+            $interpretation[$category] = DASSHelper::interpret($score, $category);
+        }
+
+        $descriptions = DASSHelper::descriptions();
+        $questions = DASSQuestions::all();
+
+        $answer_details = array_map(function ($answer) use ($questions) {
+            return [
+                'question_id' => $answer['question_id'],
+                'category' => $answer['category'],
+                'score' => $answer['score'],
+                'question_text' => $questions[$answer['question_id']]['text'] ?? '-',
+            ];
+        }, $answers);
+
+        return response()->json([
+            'meta' => ['status' => 'success'],
+            'data' => [
+                'id' => $history->id,
+                'created_at' => $history->created_at,
+                'user' => [
+                    'id' => $history->user->id,
+                    'name' => $history->user->name,
+                    'email' => $history->user->email,
+                ],
+                'scores' => $scores,
+                'interpretation' => $interpretation,
+                'descriptions' => [
+                    'Depresi' => $descriptions['Depresi'][$interpretation['Depresi']] ?? '',
+                    'Kecemasan' => $descriptions['Kecemasan'][$interpretation['Kecemasan']] ?? '',
+                    'Stres' => $descriptions['Stres'][$interpretation['Stres']] ?? '',
+                ],
+                'answers' => $answer_details,
+            ]
+        ]);
+    }
+
 }
