@@ -29,6 +29,7 @@ use App\Http\Controllers\UserAnswerScreeningScoringController;
 use App\Http\Controllers\UserHistoryScreeningScoringController;
 use App\Http\Controllers\UserModuleContentOpenController;
 use App\Http\Controllers\ScreeningDASSController;
+use App\Http\Controllers\ScreeningDASSReportController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -190,6 +191,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/users/location/maps', [UserController::class, 'getAllUsersLocationInfo']);
 
     Route::middleware(['role:admin'])->group(function () {
+
+        Route::get('/admin/screening-dass-histories', [ScreeningDASSReportController::class, 'getAllScreeningHistories']);
+        Route::get('/admin/screening-dass-histories/{id}', [ScreeningDASSReportController::class, 'getDetail']);
+        Route::delete('/admin/screening-dass-histories/{id}', [ScreeningDASSReportController::class, 'deleteHistory']);
 
         Route::get('/admin/location/{id}', [UserController::class, 'getUserLocationById']);
         // FAQ admin routes
