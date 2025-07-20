@@ -9,6 +9,7 @@ use App\Http\Controllers\FAQController;
 use App\Http\Controllers\HTController;
 use App\Http\Controllers\ModuleContentController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\PostTestController;
 use App\Http\Controllers\PreTestController;
@@ -45,15 +46,12 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-
-
-
-    Route::middleware('auth:api')->group(function () {
-        Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
-        Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
-        Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
-        Route::get('/auth/location', [UserController::class, 'getLocation']);
-        Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
+Route::middleware('auth:api')->group(function () {
+    Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
+    Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
+    Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
+    Route::get('/auth/location', [UserController::class, 'getLocation']);
+    Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
 
     // Get FAQ for users
     Route::get('/faqs/{id}', [FAQController::class, 'show']);
@@ -61,6 +59,14 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
     // Get medical personal users
     Route::get('/users/medical-personal', [UserController::class, 'getMedicalPersonals']);
+
+    // PATIENT ROUTES - TAMBAHAN BARU
+    Route::get('/patients/search', [PatientController::class, 'searchPatients']);
+    Route::get('/patients/{id}', [PatientController::class, 'getPatientDetail']);
+    Route::get('/patients/check/columns', [PatientController::class, 'checkColumns']);
+
+    // ROUTE BARU UNTUK SCREENING DIABETES
+    Route::post('/screening/diabetes', [PersonalInformationController::class, 'screeningDiabetes']);
 
     Route::get('/modules', [ModuleController::class, 'index']);
     Route::get('/modules/users', [ModuleController::class, 'getAllModules']);
@@ -99,8 +105,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/module-content/{id}', [ModuleContentController::class, 'show']);
     Route::get('/module-content/sub/{sub_module_id}', [ModuleContentController::class, 'getBySubModule']);
 
-    Route::post('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'updateLastOpened']);
-    Route::get('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'getLastOpened']);
+    Route::post('/module-content/{id}/opened', [ModuleContentController::class, 'markAsOpened']);
 
 
     // History screening public routes (read access)
@@ -138,7 +143,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/post-test/history/{id}', [UserHistoryPostTestController::class, 'show']);
 
     // Post Test public routes (read access)
-    Route::get('/post-test', [PostTestController::class, 'index']);
+    Route::get('/post-test', [PreTestController::class, 'index']);
     Route::get('/post-test/{id}', [PostTestController::class, 'show']);
 
     // Post test public routes (read access)
