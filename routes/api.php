@@ -9,7 +9,7 @@ use App\Http\Controllers\FAQController;
 use App\Http\Controllers\HTController;
 use App\Http\Controllers\ModuleContentController;
 use App\Http\Controllers\ModuleController;
-use App\Http\Controllers\PatientController; // Tambahkan import ini
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\PostTestController;
 use App\Http\Controllers\PreTestController;
@@ -64,6 +64,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/patients/search', [PatientController::class, 'searchPatients']);
     Route::get('/patients/{id}', [PatientController::class, 'getPatientDetail']);
     Route::get('/patients/check/columns', [PatientController::class, 'checkColumns']);
+
+    // ROUTE BARU UNTUK SCREENING DIABETES
+    Route::post('/screening/diabetes', [PersonalInformationController::class, 'screeningDiabetes']);
 
     Route::get('/modules', [ModuleController::class, 'index']);
     Route::get('/modules/users', [ModuleController::class, 'getAllModules']);
