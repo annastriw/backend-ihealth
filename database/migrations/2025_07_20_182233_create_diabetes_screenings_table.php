@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('diabetes_screenings', function (Blueprint $table) {
             $table->id();
             
-            // Ubah sesuai tipe data id di tabel users
-            // Jika users.id menggunakan unsignedBigInteger atau bigint unsigned
-            $table->unsignedBigInteger('user_id');
+            // Cocokkan dengan tipe UUID di tabel users
+            $table->uuid('user_id');
             
             // Input screening fields
             $table->tinyInteger('hypertension')->nullable(); // 0=rendah, 1=tinggi
@@ -30,10 +29,10 @@ return new class extends Migration
             $table->timestamp('predicted_at')->nullable(); // Waktu prediksi
             
             $table->timestamps();
-            
+
             // Foreign key constraint
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            
+
             // Index untuk performance
             $table->index(['user_id', 'created_at']);
         });
