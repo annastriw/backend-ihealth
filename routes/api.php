@@ -9,6 +9,7 @@ use App\Http\Controllers\FAQController;
 use App\Http\Controllers\HTController;
 use App\Http\Controllers\ModuleContentController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\PersonalInformationController;
 use App\Http\Controllers\PostTestController;
 use App\Http\Controllers\PreTestController;
@@ -26,7 +27,11 @@ use App\Http\Controllers\UserHistoryScreeningController;
 use App\Http\Controllers\ScreeningScoringController;
 use App\Http\Controllers\UserAnswerScreeningScoringController;
 use App\Http\Controllers\UserHistoryScreeningScoringController;
+use App\Http\Controllers\DiabetesScreeningController; // ✅ SUDAH ADA
+use App\Http\Controllers\DiabetesScreeningControllerNew; 
 use App\Http\Controllers\UserModuleContentOpenController;
+use App\Http\Controllers\ScreeningDASSController;
+use App\Http\Controllers\ScreeningDASSReportController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -45,15 +50,12 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
-
-
-
-    Route::middleware('auth:api')->group(function () {
-        Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
-        Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
-        Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
-        Route::get('/auth/location', [UserController::class, 'getLocation']);
-        Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
+Route::middleware('auth:api')->group(function () {
+    Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
+    Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
+    Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
+    Route::get('/auth/location', [UserController::class, 'getLocation']);
+    Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
 
     // Get FAQ for users
     Route::get('/faqs/{id}', [FAQController::class, 'show']);
@@ -61,6 +63,40 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
     // Get medical personal users
     Route::get('/users/medical-personal', [UserController::class, 'getMedicalPersonals']);
+
+    // PATIENT ROUTES - TAMBAHAN BARU
+    Route::get('/patients/search', [PatientController::class, 'searchPatients']);
+    Route::get('/patients/{id}', [PatientController::class, 'getPatientDetail']);
+    Route::get('/patients/check/columns', [PatientController::class, 'checkColumns']);
+
+    // ========================================
+    // 🔧 FIXED: DIABETES SCREENING ROUTES
+    // ========================================
+    
+    // ROUTE SCREENING DIABETES - UPDATED ✅
+    Route::post('/screening/diabetes', [DiabetesScreeningController::class, 'screeningDiabetes']);
+    
+    // DIABETES SCREENING MANAGEMENT ROUTES - UPDATED ✅
+    Route::prefix('screening/diabetes')->group(function () {
+        Route::get('/history', [DiabetesScreeningController::class, 'getDiabetesHistory']);
+        Route::get('/{id}', [DiabetesScreeningController::class, 'getDiabetesDetail']);
+        Route::delete('/{id}', [DiabetesScreeningController::class, 'deleteDiabetesScreening']);
+        Route::get('/chart/data', [DiabetesScreeningController::class, 'getDiabetesChartData']);
+    });
+
+    // USER SCREENING DIABETES ROUTES - UPDATED ✅
+    Route::prefix('user-screening')->group(function () {
+        Route::get('/', [DiabetesScreeningController::class, 'getDiabetesHistory']); // Same as history
+        Route::get('/{id}', [DiabetesScreeningController::class, 'getDiabetesDetail']); // Same as detail
+    });
+    Route::prefix('user-screening-new')->group(function () {
+        // Route::get('/', [DiabetesScreeningControllerNew::class, 'index']); // ini pindahin buat admin aja nanti
+        Route::get('/{userId}', [DiabetesScreeningControllerNew::class, 'byUserId']);
+    });
+
+
+    // ADDITIONAL DIABETES PREDICTION ROUTE ✅
+    Route::post('/predict-diabetes', [DiabetesScreeningController::class, 'predictDiabetesOnly']);
 
     Route::get('/modules', [ModuleController::class, 'index']);
     Route::get('/modules/users', [ModuleController::class, 'getAllModules']);
@@ -99,9 +135,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/module-content/{id}', [ModuleContentController::class, 'show']);
     Route::get('/module-content/sub/{sub_module_id}', [ModuleContentController::class, 'getBySubModule']);
 
-    Route::post('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'updateLastOpened']);
-    Route::get('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'getLastOpened']);
-
+    Route::post('/module-content/{id}/opened', [ModuleContentController::class, 'markAsOpened']);
 
     // History screening public routes (read access)
     Route::get('/screening/history', [UserHistoryScreeningController::class, 'index']);
@@ -138,7 +172,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/post-test/history/{id}', [UserHistoryPostTestController::class, 'show']);
 
     // Post Test public routes (read access)
-    Route::get('/post-test', [PostTestController::class, 'index']);
+    Route::get('/post-test', [PreTestController::class, 'index']);
     Route::get('/post-test/{id}', [PostTestController::class, 'show']);
 
     // Post test public routes (read access)
@@ -157,7 +191,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/question', [QuestionController::class, 'index']);
     Route::get('/question/{id}', [QuestionController::class, 'show']);
 
-    // Personal information routes
+    // Personal information routes (UNCHANGED - HANYA PERSONAL INFO)
     Route::prefix('personal')->group(function () {
         Route::post('/', [PersonalInformationController::class, 'store']);
 
@@ -177,8 +211,9 @@ Route::post('/auth/login', [AuthController::class, 'login']);
     Route::get('/users/location/maps', [UserController::class, 'getAllUsersLocationInfo']);
 
     Route::middleware(['role:admin'])->group(function () {
-
+        
         Route::get('/admin/location/{id}', [UserController::class, 'getUserLocationById']);
+        
         // FAQ admin routes
         Route::post('/faqs', [FAQController::class, 'store']);
         Route::put('/faqs/{id}', [FAQController::class, 'update']);
@@ -234,7 +269,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
         Route::get('/question/{id}', [QuestionController::class, 'show']);
         Route::delete('/question/{id}', [QuestionController::class, 'destroy']);
 
-        // Personal information routes
+        // Personal information routes (ADMIN ONLY)
         Route::prefix('personal')->group(function () {
             Route::get('/', [PersonalInformationController::class, 'index']);
             Route::delete('/{id}', [PersonalInformationController::class, 'destroy']);
@@ -253,11 +288,41 @@ Route::post('/auth/login', [AuthController::class, 'login']);
             Route::get('/screening-scorings', [UserHistoryScreeningScoringController::class, 'getAllHistory']);
             Route::get('/screening-scorings/users/{screeningScoringId}', [UserHistoryScreeningScoringController::class, 'getByScreeningId']);
             Route::delete('/screening-scorings/users/history/{id}', [UserHistoryScreeningScoringController::class, 'destroy']);
+            
+            // ========================================
+            // 🔧 FIXED: ADMIN DIABETES SCREENING ROUTES
+            // ========================================
+            Route::get('/diabetes', [DiabetesScreeningController::class, 'getAllDiabetesHistory']);
+            Route::delete('/diabetes/{id}', [DiabetesScreeningController::class, 'adminDeleteDiabetesScreening']);
         });
 
         // Users admin routes
         Route::apiResource('users', UserController::class);
 
         Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword']);
+
+        // ========================================
+    // 🆕 TAMBAHAN BARU: DIABETES SCREENING ROUTES UNTUK FRONTEND NEXT.JS
+    // ========================================
+    
+    // MAIN DIABETES SCREENING ROUTES UNTUK FRONTEND NEXT.JS
+    Route::prefix('diabetes-screenings')->group(function () {
+        // GET semua diabetes screenings (untuk frontend Next.js)
+        Route::get('/', [DiabetesScreeningController::class, 'index']);
+        
+        // GET diabetes screening berdasarkan ID
+        Route::get('/{id}', [DiabetesScreeningController::class, 'show']);
+        
+        // GET diabetes screenings berdasarkan user ID
+        Route::get('/user/{user_id}', [DiabetesScreeningController::class, 'getByUser']);
+        
+        // GET diabetes screening terbaru untuk user
+        Route::get('/latest/{user_id}', [DiabetesScreeningController::class, 'getLatest']);
+
+    });
+    Route::prefix('user-screening-new-admin')->group(function () {
+        Route::get('/', [DiabetesScreeningControllerNew::class, 'index']); // ini pindahin buat admin aja nanti
+        Route::get('/{userId}', [DiabetesScreeningControllerNew::class, 'byUserId']);
+    });
     });
 });
