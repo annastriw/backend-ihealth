@@ -80,9 +80,15 @@ class AuthController extends Controller
             ->orWhere('phone_number', $data['login'])
             ->first();
 
-        if (!$user || !Hash::check($data['password'], $user->password)) {
+        if (!$user) {
             return response()->json([
-                'message' => 'Invalid credentials',
+                'message' => 'Akun tidak ditemukan',
+            ], 401);
+        }
+
+        if (!Hash::check($data['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Password salah',
             ], 401);
         }
 
@@ -93,6 +99,7 @@ class AuthController extends Controller
             'token' => $token,
         ]);
     }
+
 
 
     public function getAuth(): JsonResponse

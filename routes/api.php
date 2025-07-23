@@ -57,6 +57,9 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/auth/location', [UserController::class, 'getLocation']);
     Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
 
+    Route::post('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'updateLastOpened']);
+    Route::get('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'getLastOpened']);
+
     // Get FAQ for users
     Route::get('/faqs/{id}', [FAQController::class, 'show']);
     Route::get('/faqs', [FAQController::class, 'index']);
