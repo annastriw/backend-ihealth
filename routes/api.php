@@ -32,6 +32,7 @@ use App\Http\Controllers\DiabetesScreeningControllerNew;
 use App\Http\Controllers\UserModuleContentOpenController;
 use App\Http\Controllers\ScreeningDASSController;
 use App\Http\Controllers\ScreeningDASSReportController;
+use App\Http\Controllers\ScreeningHSMBQController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -61,6 +62,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/screening-dass/submit', [ScreeningDASSController::class, 'submit']);
     Route::get('/screening-dass/latest', [ScreeningDASSController::class, 'latest']);
     Route::get('/screening-dass-histories/{id}', [ScreeningDASSController::class, 'show']);
+
+    Route::post('/screening-hsmbq/submit', [ScreeningHSMBQController::class, 'submit']);
+    Route::get('/screening-hsmbq/latest', [ScreeningHSMBQController::class, 'getLatest']);
+    Route::get('/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'show']);
 
     Route::post('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'updateLastOpened']);
     Route::get('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'getLastOpened']);
