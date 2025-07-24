@@ -63,6 +63,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/screening-dass/latest', [ScreeningDASSController::class, 'latest']);
     Route::get('/screening-dass-histories/{id}', [ScreeningDASSController::class, 'show']);
 
+    Route::get('/screening-hsmbq', [ScreeningHSMBQController::class, 'getAllByUser']);
     Route::post('/screening-hsmbq/submit', [ScreeningHSMBQController::class, 'submit']);
     Route::get('/screening-hsmbq/latest', [ScreeningHSMBQController::class, 'getLatest']);
     Route::get('/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'show']);

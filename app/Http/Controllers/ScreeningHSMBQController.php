@@ -6,6 +6,8 @@ use App\Models\ScreeningHSMBQHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 
 class ScreeningHSMBQController extends Controller
 {
@@ -94,5 +96,18 @@ class ScreeningHSMBQController extends Controller
             'Baik' => 'Anda memiliki kualitas hidup hipertensi yang baik. Teruskan pola hidup sehat Anda.',
             default => 'Interpretasi tidak tersedia.',
         };
+    }
+
+    public function getAllByUser(Request $request): JsonResponse
+    {
+        $user = Auth::guard('api')->user();
+
+        $histories = ScreeningHSMBQHistory::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->get(['id', 'created_at']); // hanya ambil field yg diperlukan
+
+        return response()->json([
+            'data' => $histories,
+        ]);
     }
 }
