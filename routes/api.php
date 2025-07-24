@@ -27,7 +27,7 @@ use App\Http\Controllers\UserHistoryScreeningController;
 use App\Http\Controllers\ScreeningScoringController;
 use App\Http\Controllers\UserAnswerScreeningScoringController;
 use App\Http\Controllers\UserHistoryScreeningScoringController;
-use App\Http\Controllers\DiabetesScreeningController; // ✅ SUDAH ADA
+use App\Http\Controllers\DiabetesScreeningController;
 use App\Http\Controllers\DiabetesScreeningControllerNew; 
 use App\Http\Controllers\UserModuleContentOpenController;
 use App\Http\Controllers\ScreeningDASSController;
@@ -56,6 +56,11 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
     Route::get('/auth/location', [UserController::class, 'getLocation']);
     Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
+
+    Route::get('/screening-dass', [ScreeningDASSController::class, 'index']);
+    Route::post('/screening-dass/submit', [ScreeningDASSController::class, 'submit']);
+    Route::get('/screening-dass/latest', [ScreeningDASSController::class, 'latest']);
+    Route::get('/screening-dass-histories/{id}', [ScreeningDASSController::class, 'show']);
 
     Route::post('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'updateLastOpened']);
     Route::get('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'getLastOpened']);
@@ -214,6 +219,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/users/location/maps', [UserController::class, 'getAllUsersLocationInfo']);
 
     Route::middleware(['role:admin'])->group(function () {
+
+        Route::get('/admin/screening-dass-histories', [ScreeningDASSReportController::class, 'getAllScreeningHistories']);
+        Route::delete('/admin/screening-dass-histories/{id}', [ScreeningDASSReportController::class, 'deleteHistory']);
+        Route::get('/admin/screening-dass-histories/{id}', [ScreeningDASSController::class, 'showAdmin']);
         
         Route::get('/admin/location/{id}', [UserController::class, 'getUserLocationById']);
         

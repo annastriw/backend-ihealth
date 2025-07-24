@@ -1,0 +1,23 @@
+{
+  "Depresi": {
+    "Normal": "Skor Anda menunjukkan tidak ada tanda-tanda depresi. Hal ini mencerminkan kondisi emosional yang sehat, dengan suasana hati yang stabil dan tidak terganggu secara signifikan.",
+    "Ringan": "Terdapat gejala depresi yang ringan, seperti penurunan motivasi atau energi, namun belum mengganggu fungsi adaptif secara signifikan.",
+    "Sedang": "Gejala depresi Anda cukup terasa dan dapat mulai memengaruhi rutinitas harian dan interaksi sosial.",
+    "Parah": "Anda mengalami gejala depresi berat, dengan kemungkinan munculnya gangguan dalam fungsi sehari-hari seperti kurangnya inisiatif atau keinginan dalam beraktivitas.",
+    "Sangat Parah": "Gejala depresi sangat berat dan membutuhkan penanganan profesional segera."
+  },
+  "Kecemasan": {
+    "Normal": "Tidak ditemukan gejala kecemasan signifikan; individu berada dalam keadaan tenang secara fisiologis dan emosional.",
+    "Ringan": "Terdapat gejala kecemasan ringan seperti kegelisahan, kekhawatiran sosial, atau kewaspadaan berlebih, namun gejala ini masih dalam batas normal dan  belum mengganggu fungsi sehari-hari secara signifikan.",
+    "Sedang": "Gejala kecemasan mulai meningkat dan dapat mencakup gejala fisik (seperti jantung berdebar) atau pikiran yang overaktif. Disarankan untuk mengambil tindakan pencegahan seperti meningkatkan pola hidup sehat dan pola pikir positif.",
+    "Parah": "Kecemasan berat yang mungkin muncul dalam bentuk kepanikan, kesulitan relaksasi, atau ketegangan yang berkepanjangan yang mengganggu aktivitas sehari-hari. Disarankan untuk mulai menerapkan strategi coping efektif seperti relaksasi untuk mengelola kecemasan atau konsultasi dengan profesional",
+    "Sangat Parah": "Kecemasan sangat berat yang berpotensi mengganggu kehidupan sehari-hari, pekerjaan, dan relasi sosial, serta membutuhkan intervensi psikologis dan penanganan profesional."
+  },
+  "Stres": {
+    "Normal": "Tidak terdeteksi gejala signifikan, menandakan adanya kemampuan adaptif yang baik dalam menghadapi tuntutan lingkungan.",
+    "Ringan": "Stres ringan ditandai dengan sedikit ketegangan atau kesulitan konsentrasi, tetapi belum mengganggu fungsi sehari-hari secara signifikan.",
+    "Sedang": "Indikasi stres sedang yang dapat memengaruhi performa dan keseimbangan emosional, namun masih dapat dikendalikan dengan pengelolaan stres yang baik. Disarankan untuk mengambil langkah-langkah dalam mengelola stres seperti menjaga pola hidup sehat.",
+    "Parah": "Tingkat stres tinggi yang dapat menyebabkan emosi tidak stabil, gangguan tidur, dan kegelisahan berkepanjangan. Disarankan untuk menerapkan strategi mengelola stres dengan lebih efektif, misalnya dengan relaksasi, mendengarkan musik, dan mulai berkonsultasi dengan profesional.",
+    "Sangat Parah": "Gejala stres sangat berat yang berdampak luas terhadap fungsi sehari-hari dan kesejahteraan psikologis; sangat dianjurkan untuk berkonsultasi dengan tenaga profesional."
+  }
+}
