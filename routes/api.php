@@ -33,6 +33,7 @@ use App\Http\Controllers\UserModuleContentOpenController;
 use App\Http\Controllers\ScreeningDASSController;
 use App\Http\Controllers\ScreeningDASSReportController;
 use App\Http\Controllers\ScreeningHSMBQController;
+use App\Http\Controllers\ScreeningDSMQController;
 
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +68,11 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/screening-hsmbq/submit', [ScreeningHSMBQController::class, 'submit']);
     Route::get('/screening-hsmbq/latest', [ScreeningHSMBQController::class, 'getLatest']);
     Route::get('/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'show']);
+
+    Route::get('/screening-dsmq', [ScreeningDSMQController::class, 'getAllByUser']);
+    Route::post('/screening-dsmq/submit', [ScreeningDSMQController::class, 'submit']);
+    Route::get('/screening-dsmq/latest', [ScreeningDSMQController::class, 'getLatest']);
+    Route::get('/screening-dsmq-histories/{id}', [ScreeningDSMQController::class, 'show']);
 
     Route::post('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'updateLastOpened']);
     Route::get('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'getLastOpened']);
@@ -233,6 +239,10 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/admin/screening-hsmbq-histories', [ScreeningHSMBQController::class, 'getAllForAdmin']);
         Route::get('/admin/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'getDetailForAdmin']);
         Route::delete('/admin/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'deleteById']);
+
+        Route::get('/admin/screening-dsmq-histories', [ScreeningDSMQController::class, 'getAllForAdmin']);
+        Route::get('/admin/screening-dsmq-histories/{id}', [ScreeningDSMQController::class, 'getDetailForAdmin']);
+        Route::delete('/admin/screening-dsmq-histories/{id}', [ScreeningDSMQController::class, 'deleteById']);
         
         Route::get('/admin/location/{id}', [UserController::class, 'getUserLocationById']);
         
