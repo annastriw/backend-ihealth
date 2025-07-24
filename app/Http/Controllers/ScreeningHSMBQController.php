@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ScreeningHSMBQHistory;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -110,4 +111,66 @@ class ScreeningHSMBQController extends Controller
             'data' => $histories,
         ]);
     }
+
+    public function getAllForAdmin(): JsonResponse
+    {
+        $histories = ScreeningHSMBQHistory::with('user')
+            ->latest()
+            ->get()
+            ->map(function ($history) {
+                return [
+                    'history_id' => $history->id,
+                    'user_id' => $history->user_id,
+                    'name' => $history->user->name,
+                    'score' => $history->total_score,
+                    'category' => $history->category,
+                    'submitted_at' => $history->created_at->toDateTimeString(), // ✅ diganti
+                ];
+            });
+
+        return response()->json(['data' => $histories]);
+    }
+
+    public function deleteById(string $id): JsonResponse
+    {
+        $history = ScreeningHSMBQHistory::findOrFail($id);
+        $history->delete();
+
+        return response()->json(['message' => 'Berhasil dihapus']);
+    }
+
+    public function getDetailForAdmin($id): JsonResponse
+    {
+        $history = ScreeningHSMBQHistory::with('user')->findOrFail($id);
+
+        return response()->json([
+            'data' => [
+                'id' => $history->id,
+                'created_at' => $history->created_at->toDateTimeString(),
+                'score' => $history->total_score,
+                'interpretation' => $history->category,
+                'description' => $this->getDescription($history->category),
+                'answers' => collect($history->answers)->map(function ($answer) {
+                    return [
+                        'question_id' => $answer['question_id'],
+                        'score' => $answer['score'],
+                    ];
+                }),
+            ],
+        ]);
+    }
+
+    /**
+     * Optional: konversi interpretasi ke deskripsi.
+     */
+    private function getDescription(string $category): string
+    {
+        return match ($category) {
+            'Baik' => 'Anda telah memiliki manajemen diri hipertensi yang sangat baik. Pertahankan dan terus tingkatkan gaya hidup sehat Anda.',
+            'Cukup' => 'Manajemen diri Anda terhadap hipertensi tergolong cukup. Perlu perhatian lebih untuk meningkatkan kepatuhan.',
+            'Kurang' => 'Tingkat kepatuhan Anda terhadap manajemen diri hipertensi masih rendah. Segera konsultasikan dengan tenaga kesehatan.',
+            default => 'Deskripsi tidak tersedia.',
+        };
+    }
+
 }

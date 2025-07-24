@@ -229,6 +229,10 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/admin/screening-dass-histories', [ScreeningDASSReportController::class, 'getAllScreeningHistories']);
         Route::delete('/admin/screening-dass-histories/{id}', [ScreeningDASSReportController::class, 'deleteHistory']);
         Route::get('/admin/screening-dass-histories/{id}', [ScreeningDASSController::class, 'showAdmin']);
+
+        Route::get('/admin/screening-hsmbq-histories', [ScreeningHSMBQController::class, 'getAllForAdmin']);
+        Route::get('/admin/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'getDetailForAdmin']);
+        Route::delete('/admin/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'deleteById']);
         
         Route::get('/admin/location/{id}', [UserController::class, 'getUserLocationById']);
         
