@@ -22,6 +22,7 @@ class DiabetesScreening extends Model
     protected $fillable = [
         'user_id',
         'age',
+        'name',
         'gender',
         'bmi',
         'smoking_history',
@@ -55,7 +56,7 @@ class DiabetesScreening extends Model
      */
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 
     // ========================================
