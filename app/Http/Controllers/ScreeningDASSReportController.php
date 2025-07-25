@@ -18,9 +18,9 @@ class ScreeningDASSReportController extends Controller
                 return [
                     'history_id' => $item->id,
                     'submitted_at' => $item->created_at->toDateTimeString(),
-                    'user_id' => $item->user->id,
-                    'name' => $item->user->name,
-                    'email' => $item->user->email,
+                    'user_id' => $item->user?->id,
+                    'name' => $item->user?->name,
+                    'email' => $item->user?->email,
                 ];
             });
 
