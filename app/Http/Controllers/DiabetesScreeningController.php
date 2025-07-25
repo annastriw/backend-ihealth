@@ -1,10 +1,5 @@
 <?php
 
-// ========================================
-// DiabetesScreeningController.php - FIXED
-// Sesuai dengan format ML API yang benar
-// ========================================
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -12,6 +7,7 @@ use App\Models\DiabetesScreening;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
+use App\Models\User; // Import User model
 
 class DiabetesScreeningController extends Controller
 {
@@ -24,7 +20,7 @@ class DiabetesScreeningController extends Controller
 
         try {
             $validated = $request->validate([
-                'patient_id' => 'required|string',
+                'patient_id' => 'required|string|exists:users,id', // FIX: Added exists validation to ensure patient_id is a valid user ID
                 'gender' => 'required|in:0,1',
                 'age' => 'required|integer|min:1|max:120',
                 'heart_disease' => 'required|in:0,1',
@@ -35,6 +31,19 @@ class DiabetesScreeningController extends Controller
             ]);
 
             Log::info('Validation passed', ['validated' => $validated]);
+
+            // ✅ TAMBAHAN BARU: Ambil nama pasien dari database
+$patient = \Illuminate\Support\Facades\DB::table('personal_information')
+    ->where('user_id', $validated['patient_id'])
+    ->orWhere('id', $validated['patient_id'])
+    ->first();
+
+$patientName = $patient ? $patient->name : 'Pasien Tidak Diketahui';
+
+Log::info('Patient data retrieved', [
+    'patient_id' => $validated['patient_id'],
+    'patient_name' => $patientName
+]);
 
             // ============================================
             // FORMAT DATA UNTUK ML API (STRING FORMAT)
@@ -61,9 +70,10 @@ class DiabetesScreeningController extends Controller
             $screeningId = null;
             try {
                 Log::info('Saving to database...');
-                
+
                 $screeningData = [
-                    'user_id' => auth()->id(),
+                    'user_id' => $validated['patient_id'], // FIX: Use patient_id from the request as the user_id
+                    'name' => $patientName,
                     'age' => $validated['age'],
                     'gender' => $validated['gender'] == 1 ? 'Perempuan' : 'Laki-laki',
                     'bmi' => $validated['bmi'],
@@ -89,7 +99,6 @@ class DiabetesScreeningController extends Controller
                     'error' => $dbError->getMessage(),
                     'trace' => $dbError->getTraceAsString()
                 ]);
-                
                 // Continue execution even if DB save fails
             }
 
@@ -106,6 +115,7 @@ class DiabetesScreeningController extends Controller
                     'id' => $screeningId,
                     'screening_id' => $screeningId,
                     'patient_id' => $validated['patient_id'],
+                    'patient_name' => $patientName,
                     'prediction' => $this->getPredictionBinary($prediction),
                     'probability' => $this->getPredictionProbability($prediction),
                     'risk_level' => $this->getRiskLevel($prediction),
@@ -115,7 +125,7 @@ class DiabetesScreeningController extends Controller
                     'debug_ml_data_sent' => $mlData,  // untuk debug
                 ]
             ]);
-            
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation Error', ['errors' => $e->errors()]);
             return response()->json([
@@ -153,7 +163,7 @@ class DiabetesScreeningController extends Controller
                 'url' => $this->mlApiUrl,
                 'data' => $data
             ]);
-        
+
             $response = Http::timeout(30)
                 ->withOptions([
                     'verify' => false  // Fix SSL issue untuk development
@@ -163,26 +173,26 @@ class DiabetesScreeningController extends Controller
                     'Accept' => 'application/json',
                 ])
                 ->post($this->mlApiUrl, $data);
-            
+
             Log::info('📡 ML API Status', ['status' => $response->status()]);
             Log::info('📡 ML API Raw Response', ['response' => $response->body()]);
-            
+
             if (!$response->successful()) {
                 throw new \Exception('ML API error: ' . $response->status() . ' - ' . $response->body());
             }
-            
+
             $result = $response->json();
             Log::info('✅ ML API Success', ['parsed_result' => $result]);
-            
+
             return $result;
-            
+
         } catch (\Exception $e) {
             Log::error('❌ ML API Failed', [
                 'error' => $e->getMessage(),
                 'url' => $this->mlApiUrl,
                 'data_sent' => $data
             ]);
-            
+
             // FALLBACK LOGIC YANG LEBIH BAIK
             return $this->getFallbackPrediction($data);
         }
@@ -194,10 +204,10 @@ class DiabetesScreeningController extends Controller
     private function getFallbackPrediction($data)
     {
         Log::info('Using fallback prediction logic');
-        
+
         $risk_score = 0;
         $factors = [];
-        
+
         // Age factor
         if ($data['age'] >= 60) {
             $risk_score += 25;
@@ -206,7 +216,7 @@ class DiabetesScreeningController extends Controller
             $risk_score += 15;
             $factors[] = 'usia 45-59 tahun';
         }
-        
+
         // BMI factor
         if ($data['bmi'] >= 30) {
             $risk_score += 20;
@@ -215,7 +225,7 @@ class DiabetesScreeningController extends Controller
             $risk_score += 10;
             $factors[] = 'overweight (BMI 25-29.9)';
         }
-        
+
         // Blood glucose level - KRITERIA YANG PALING PENTING
         if ($data['blood_glucose_level'] >= 200) {
             $risk_score += 50; // Sangat tinggi
@@ -227,19 +237,19 @@ class DiabetesScreeningController extends Controller
             $risk_score += 10; // Pre-diabetes
             $factors[] = 'gula darah borderline (100-139 mg/dL)';
         }
-        
+
         // Hypertension factor
         if ($data['hypertension'] == 'Tinggi') {
             $risk_score += 15;
             $factors[] = 'hipertensi';
         }
-        
+
         // Heart disease factor
         if ($data['heart_disease'] == 'Ya') {
             $risk_score += 20;
             $factors[] = 'penyakit jantung';
         }
-        
+
         // Smoking factor
         if (in_array($data['smoking_history'], ['perokok aktif'])) {
             $risk_score += 15;
@@ -248,15 +258,15 @@ class DiabetesScreeningController extends Controller
             $risk_score += 10;
             $factors[] = 'mantan perokok';
         }
-        
+
         // Gender factor (diabetes lebih umum pada perempuan di usia tertentu)
         if ($data['gender'] == 'Perempuan' && $data['age'] >= 45) {
             $risk_score += 5;
         }
-        
+
         // Batasi score maksimal
         $risk_score = min($risk_score, 100);
-        
+
         // Tentukan hasil berdasarkan score
         if ($risk_score >= 60) {
             $result = "Anda memiliki risiko Diabetes. Silakan konsultasi ke dokter.";
@@ -268,14 +278,14 @@ class DiabetesScreeningController extends Controller
             $result = "Anda Tidak Berisiko Diabetes.";
             $probability = min(35, $risk_score + 5);
         }
-        
+
         Log::info('Fallback prediction calculated', [
             'risk_score' => $risk_score,
             'probability' => $probability,
             'factors' => $factors,
             'result' => $result
         ]);
-        
+
         return [
             'probabilitas' => $probability . '%',
             'hasil' => $result,
@@ -287,7 +297,7 @@ class DiabetesScreeningController extends Controller
     // ============================================
     // HELPER METHODS - Handle different ML response formats
     // ============================================
-    
+
     private function getPredictionResult($prediction)
     {
         // Handle ML API response format
@@ -301,7 +311,7 @@ class DiabetesScreeningController extends Controller
                 return 'Rendah';
             }
         }
-        
+
         // Fallback berdasarkan probability
         $probability = $this->getPredictionScore($prediction);
         if ($probability >= 60) return 'Tinggi';
@@ -317,12 +327,12 @@ class DiabetesScreeningController extends Controller
             // Remove % sign if present and convert to float
             return floatval(str_replace('%', '', $prob));
         }
-        
+
         // Handle fallback format
         if (isset($prediction['probability'])) {
             return $prediction['probability'] * 100;
         }
-        
+
         return 10.0; // default low score
     }
 
@@ -354,7 +364,7 @@ class DiabetesScreeningController extends Controller
     private function getRiskLevel($prediction)
     {
         $score = $this->getPredictionScore($prediction);
-        
+
         if ($score >= 60) return 'Tinggi';
         if ($score >= 35) return 'Sedang';
         return 'Rendah';
@@ -363,7 +373,7 @@ class DiabetesScreeningController extends Controller
     private function generateRecommendation($prediction)
     {
         $score = $this->getPredictionScore($prediction);
-        
+
         if ($score >= 60) {
             return 'Hasil screening menunjukkan risiko diabetes tinggi. Sangat disarankan untuk segera konsultasi dengan dokter untuk pemeriksaan lebih lanjut dan mulai menerapkan pola hidup sehat secara ketat.';
         } elseif ($score >= 35) {
@@ -376,26 +386,31 @@ class DiabetesScreeningController extends Controller
     // ============================================
     // OTHER METHODS (History, Detail, etc.)
     // ============================================
-    
+
     public function getDiabetesHistory(Request $request)
     {
         $user = auth()->user();
-        
-        $query = DiabetesScreening::where('user_id', $user->id);
-        
+
+       $query = DiabetesScreening::with('user')->where('user_id', $user->id); // FIX: Eager load user
+
         if ($request->has('risk') && $request->risk != '') {
             $query->where('prediction_result', 'like', '%' . $request->risk . '%');
         }
-        
+
         if ($request->has('date_from') && $request->date_from != '') {
             $query->whereDate('screening_date', '>=', $request->date_from);
         }
-        
+
         if ($request->has('date_to') && $request->date_to != '') {
             $query->whereDate('screening_date', '<=', $request->date_to);
         }
-        
+
         $screenings = $query->orderBy('screening_date', 'desc')->paginate(15);
+
+        // FIX: Format each screening item for the frontend
+        $formattedScreenings = $screenings->getCollection()->map(function ($screening) {
+            return $this->formatScreeningForFrontend($screening);
+        });
         
         return response()->json([
             'meta' => [
@@ -417,7 +432,7 @@ class DiabetesScreeningController extends Controller
         $screening = DiabetesScreening::where('user_id', auth()->id())
             ->where('id', $id)
             ->first();
-        
+
         if (!$screening) {
             return response()->json([
                 'meta' => [
@@ -427,7 +442,7 @@ class DiabetesScreeningController extends Controller
                 ]
             ], 404);
         }
-        
+
         return response()->json([
             'meta' => [
                 'status' => 'success',
@@ -443,7 +458,7 @@ class DiabetesScreeningController extends Controller
         $deleted = DiabetesScreening::where('user_id', auth()->id())
             ->where('id', $id)
             ->delete();
-        
+
         if (!$deleted) {
             return response()->json([
                 'meta' => [
@@ -453,7 +468,7 @@ class DiabetesScreeningController extends Controller
                 ]
             ], 404);
         }
-        
+
         return response()->json([
             'meta' => [
                 'status' => 'success',
@@ -466,20 +481,20 @@ class DiabetesScreeningController extends Controller
     public function getDiabetesChartData()
     {
         $user = auth()->user();
-        
+
         $screenings = DiabetesScreening::where('user_id', $user->id)
             ->where('screening_date', '>=', Carbon::now()->subDays(30))
             ->orderBy('screening_date')
             ->get();
-        
+
         $dates = [];
         $scores = [];
-        
+
         foreach ($screenings as $screening) {
             $dates[] = Carbon::parse($screening->screening_date)->format('d M');
             $scores[] = $screening->prediction_score ?? 0;
         }
-        
+
         return response()->json([
             'meta' => [
                 'status' => 'success',
@@ -499,7 +514,7 @@ class DiabetesScreeningController extends Controller
         $screenings = DiabetesScreening::with('user')
             ->orderBy('screening_date', 'desc')
             ->paginate(20);
-        
+
         return response()->json([
             'meta' => [
                 'status' => 'success',
@@ -518,7 +533,7 @@ class DiabetesScreeningController extends Controller
     public function adminDeleteDiabetesScreening($id)
     {
         $deleted = DiabetesScreening::where('id', $id)->delete();
-        
+
         if (!$deleted) {
             return response()->json([
                 'meta' => [
@@ -528,7 +543,7 @@ class DiabetesScreeningController extends Controller
                 ]
             ], 404);
         }
-        
+
         return response()->json([
             'meta' => [
                 'status' => 'success',
@@ -540,32 +555,33 @@ class DiabetesScreeningController extends Controller
     // ========================================
     // 🆕 METHODS BARU UNTUK NEXT.JS FRONTEND
     // ========================================
-    
+
     /**
      * Display a listing of diabetes screenings untuk Next.js frontend
      * GET /api/diabetes-screenings
      */
     public function index(Request $request): \Illuminate\Http\JsonResponse
-    {
-        try {
-            $query = DiabetesScreening::orderBy('screening_date', 'desc');
-            
-            // Jika ada user yang login, prioritaskan data user tersebut
-            if (auth()->check()) {
-                $query->where('user_id', auth()->id());
-            }
-            
-            $screenings = $query->limit(50)->get()->map(function ($screening) {
-                return $this->formatScreeningForFrontend($screening);
-            });
+{
+    try {
+        $query = DiabetesScreening::with('user') // Tambahkan eager loading relasi 'user'
+            ->orderBy('screening_date', 'desc');
 
-            return response()->json($screenings);
-        } catch (\Exception $e) {
-            Log::error('Diabetes screening index error: ' . $e->getMessage());
-            return response()->json([]);
+        // Jika ada user yang login, prioritaskan data user tersebut
+        if (auth()->check()) {
+            $query->where('user_id', auth()->id());
         }
-    }
 
+        $screenings = $query->limit(50)->get()->map(function ($screening) {
+            return $this->formatScreeningForFrontend($screening);
+        });
+
+        return response()->json($screenings);
+    } catch (\Exception $e) {
+        Log::error('Diabetes screening index error: ' . $e->getMessage());
+        return response()->json([]);
+    }
+}
+    
     /**
      * Display specific screening untuk Next.js frontend
      * GET /api/diabetes-screenings/{id}
@@ -573,7 +589,7 @@ class DiabetesScreeningController extends Controller
     public function show(int $id): \Illuminate\Http\JsonResponse
     {
         try {
-            $screening = DiabetesScreening::find($id);
+            $screening = DiabetesScreening::with('user')->find($id); // FIX: Eager load user
 
             if (!$screening) {
                 return response()->json([
@@ -598,7 +614,8 @@ class DiabetesScreeningController extends Controller
     public function getByUser(int $user_id): \Illuminate\Http\JsonResponse
     {
         try {
-            $screenings = DiabetesScreening::where('user_id', $user_id)
+            $screenings = DiabetesScreening::with('user') // FIX: Eager load user
+                ->where('user_id', $user_id)
                 ->orderBy('screening_date', 'desc')
                 ->get()
                 ->map(function ($screening) {
@@ -619,7 +636,8 @@ class DiabetesScreeningController extends Controller
     public function getLatest(int $user_id): \Illuminate\Http\JsonResponse
     {
         try {
-            $screening = DiabetesScreening::where('user_id', $user_id)
+            $screening = DiabetesScreening::with('user') // FIX: Eager load user
+                ->where('user_id', $user_id)
                 ->orderBy('screening_date', 'desc')
                 ->first();
 
@@ -642,7 +660,7 @@ class DiabetesScreeningController extends Controller
     // ========================================
     // HELPER METHOD UNTUK FORMAT DATA FRONTEND
     // ========================================
-    
+
     /**
      * Format screening data untuk Next.js frontend
      */
@@ -651,7 +669,7 @@ class DiabetesScreeningController extends Controller
         return [
             'id' => $screening->id,
             'user_id' => $screening->user_id,
-            'patient_name' => "Pasien " . ($screening->user_id ?? $screening->id),
+            'patient_name' => $screening->name ?? 'Pasien Tidak Diketahui', // FIX: Use actual user name
             'age' => $screening->age,
             'gender' => $screening->gender,
             'bmi' => (float) $screening->bmi,
