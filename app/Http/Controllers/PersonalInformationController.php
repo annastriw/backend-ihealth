@@ -124,6 +124,7 @@ class PersonalInformationController extends Controller
             'age' => 'sometimes|integer|min:1|max:120',
             'gender' => 'sometimes|in:0,1',
             'is_married' => 'sometimes|boolean',
+            'work' => 'sometimes|string|max:255',
             'last_education' => 'sometimes|string|max:255',
             'origin_disease' => 'sometimes|string|max:255',
             'disease_duration' => 'sometimes|string|max:255',
