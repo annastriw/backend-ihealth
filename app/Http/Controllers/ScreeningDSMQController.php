@@ -142,6 +142,10 @@ class ScreeningDSMQController extends Controller
             'data' => [
                 'id' => $history->id,
                 'created_at' => $history->created_at->toDateTimeString(),
+                'user' => [
+                    'id' => $history->user->id,
+                    'name' => $history->user->name,
+                ],
                 'score' => $history->total_score,
                 'interpretation' => $history->category,
                 'description' => $this->getDescription($history->category),
