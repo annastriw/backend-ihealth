@@ -37,66 +37,54 @@ use App\Http\Controllers\ScreeningDSMQController;
 
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
-
-// Authentication routes
+// Auth
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:api')->group(function () {
+    // Auth
     Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
     Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
     Route::put('/auth/update-account', [AuthController::class, 'updateAccount']);
     Route::get('/auth/location', [UserController::class, 'getLocation']);
     Route::put('/auth/update-location', [UserController::class, 'updateLocation']);
 
+    // DASS
     Route::get('/screening-dass', [ScreeningDASSController::class, 'index']);
     Route::post('/screening-dass/submit', [ScreeningDASSController::class, 'submit']);
     Route::get('/screening-dass/latest', [ScreeningDASSController::class, 'latest']);
     Route::get('/screening-dass-histories/{id}', [ScreeningDASSController::class, 'show']);
 
+    // HSMBQ
     Route::get('/screening-hsmbq', [ScreeningHSMBQController::class, 'getAllByUser']);
     Route::post('/screening-hsmbq/submit', [ScreeningHSMBQController::class, 'submit']);
     Route::get('/screening-hsmbq/latest', [ScreeningHSMBQController::class, 'getLatest']);
     Route::get('/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'show']);
 
+    // DSMQ
     Route::get('/screening-dsmq', [ScreeningDSMQController::class, 'getAllByUser']);
     Route::post('/screening-dsmq/submit', [ScreeningDSMQController::class, 'submit']);
     Route::get('/screening-dsmq/latest', [ScreeningDSMQController::class, 'getLatest']);
     Route::get('/screening-dsmq-histories/{id}', [ScreeningDSMQController::class, 'show']);
 
+    // Module Content Open
     Route::post('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'updateLastOpened']);
     Route::get('/module-contents/{id}/opened', [UserModuleContentOpenController::class, 'getLastOpened']);
 
-    // Get FAQ for users
+    // FAQ
     Route::get('/faqs/{id}', [FAQController::class, 'show']);
     Route::get('/faqs', [FAQController::class, 'index']);
 
-    // Get medical personal users
+    // Medical Personal
     Route::get('/users/medical-personal', [UserController::class, 'getMedicalPersonals']);
 
-    // PATIENT ROUTES - TAMBAHAN BARU
+    // Patient
     Route::get('/patients/search', [PatientController::class, 'searchPatients']);
     Route::get('/patients/{id}', [PatientController::class, 'getPatientDetail']);
     Route::get('/patients/check/columns', [PatientController::class, 'checkColumns']);
 
-    // ========================================
-    // 🔧 FIXED: DIABETES SCREENING ROUTES
-    // ========================================
-    
-    // ROUTE SCREENING DIABETES - UPDATED ✅
+    // Diabetes Screening
     Route::post('/screening/diabetes', [DiabetesScreeningController::class, 'screeningDiabetes']);
-    
-    // DIABETES SCREENING MANAGEMENT ROUTES - UPDATED ✅
     Route::prefix('screening/diabetes')->group(function () {
         Route::get('/history', [DiabetesScreeningController::class, 'getDiabetesHistory']);
         Route::get('/{id}', [DiabetesScreeningController::class, 'getDiabetesDetail']);
@@ -104,34 +92,33 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/chart/data', [DiabetesScreeningController::class, 'getDiabetesChartData']);
     });
 
-    // USER SCREENING DIABETES ROUTES - UPDATED ✅
+    // User Diabetes Screening
     Route::prefix('user-screening')->group(function () {
-        Route::get('/', [DiabetesScreeningController::class, 'getDiabetesHistory']); // Same as history
-        Route::get('/{id}', [DiabetesScreeningController::class, 'getDiabetesDetail']); // Same as detail
+        Route::get('/', [DiabetesScreeningController::class, 'getDiabetesHistory']);
+        Route::get('/{id}', [DiabetesScreeningController::class, 'getDiabetesDetail']);
     });
     Route::prefix('user-screening-new')->group(function () {
-        // Route::get('/', [DiabetesScreeningControllerNew::class, 'index']); // ini pindahin buat admin aja nanti
         Route::get('/{userId}', [DiabetesScreeningControllerNew::class, 'byUserId']);
     });
 
-
-    // ADDITIONAL DIABETES PREDICTION ROUTE ✅
+    // Diabetes Prediction
     Route::post('/predict-diabetes', [DiabetesScreeningController::class, 'predictDiabetesOnly']);
 
+    // Modules
     Route::get('/modules', [ModuleController::class, 'index']);
     Route::get('/modules/users', [ModuleController::class, 'getAllModules']);
     Route::get('/modules/users', [ModuleController::class, 'getByType']);
     Route::get('/modules/users', [ModuleController::class, 'users']);
-
     Route::get('/modules/type', [ModuleController::class, 'getByType']);
     Route::get('/modules/{id}', [ModuleController::class, 'show']);
 
+    // Discussion
     Route::get('/discussion', [DiscussionController::class, 'index']);
     Route::post('/discussion', [DiscussionController::class, 'store']);
     Route::get('/discussion/private', [DiscussionController::class, 'showPrivateDiscussions']);
     Route::get('/discussion/{id}', [DiscussionController::class, 'show']);
 
-    // Discussion Comment routes
+    // Discussion Comments
     Route::get('/discussion/comment/me', [DiscussionCommentController::class, 'getMyDiscussionComments']);
     Route::get('/discussion/comment/{id}', [DiscussionCommentController::class, 'getByDiscussionId']);
     Route::get('/discussion/comment/detail/{id}', [DiscussionCommentController::class, 'show']);
@@ -139,139 +126,125 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/discussion/comment/{id}', [DiscussionCommentController::class, 'update']);
     Route::delete('/discussion/comment/{id}', [DiscussionCommentController::class, 'destroy']);
 
-    // Discussion Comment Answer routes
+    // Discussion Comment Answers
     Route::prefix('discussion/comment/answer')->middleware('auth:sanctum')->group(function () {
         Route::get('/{discussion_comment_id}', [DiscussionCommentAnswerController::class, 'getByCommentId']);
         Route::post('/', [DiscussionCommentAnswerController::class, 'store']);
         Route::delete('/{id}', [DiscussionCommentAnswerController::class, 'destroy']);
     });
 
+    // Sub Modules
     Route::get('/sub-modules', [SubModuleController::class, 'index']);
     Route::get('/sub-modules/{id}', [SubModuleController::class, 'show']);
     Route::get('/sub-modules/category/{module_id}', [SubModuleController::class, 'getByModule']);
 
-    // Module content public routes (read access)
+    // Module Content
     Route::get('/module-content', [ModuleContentController::class, 'index']);
     Route::get('/module-content/{id}', [ModuleContentController::class, 'show']);
     Route::get('/module-content/sub/{sub_module_id}', [ModuleContentController::class, 'getBySubModule']);
-
     Route::post('/module-content/{id}/opened', [ModuleContentController::class, 'markAsOpened']);
 
-    // History screening public routes (read access)
+    // Screening History
     Route::get('/screening/history', [UserHistoryScreeningController::class, 'index']);
     Route::get('/screening/history/{id}', [UserHistoryScreeningController::class, 'show']);
 
-    // Screening public routes (read access)
+    // Screening
     Route::get('/screening', [ScreeningController::class, 'index']);
     Route::get('/screening/{id}', [ScreeningController::class, 'show']);
-
-    // Submit screening routes
     Route::post('/screening/submit', [UserAnswerScreeningController::class, 'submit']);
 
+    // Screening Scorings
     Route::get('/screening-scorings/history', [UserHistoryScreeningScoringController::class, 'index']);
     Route::get('/screening-scorings/history/{id}', [UserHistoryScreeningScoringController::class, 'show']);
     Route::post('/screening-scorings/submit', [UserAnswerScreeningScoringController::class, 'submit']);
-
     Route::get('/screening-scorings', [ScreeningScoringController::class, 'index']);
     Route::get('/screening-scorings/{id}', [ScreeningScoringController::class, 'show']);
 
-    // History pre test public routes (read access)
+    // Pre Test
     Route::get('/pre-test/history', [UserHistoryPreTestController::class, 'index']);
     Route::get('/pre-test/history/{id}', [UserHistoryPreTestController::class, 'show']);
-
-    // Pre Test public routes (read access)
     Route::get('/pre-test', [PreTestController::class, 'index']);
     Route::get('/pre-test/{id}', [PreTestController::class, 'show']);
     Route::get('/pre-test/sub/{sub_module_id}', [PreTestController::class, 'getBySubModule']);
-
-    // Submit pretest routes
     Route::post('/pre-test/submit', [UserAnswerPreTestController::class, 'submit']);
 
-    // History post test public routes (read access)
+    // Post Test
     Route::get('/post-test/history', [UserHistoryPostTestController::class, 'index']);
     Route::get('/post-test/history/{id}', [UserHistoryPostTestController::class, 'show']);
-
-    // Post Test public routes (read access)
-    Route::get('/post-test', [PreTestController::class, 'index']);
-    Route::get('/post-test/{id}', [PostTestController::class, 'show']);
-
-    // Post test public routes (read access)
     Route::get('/post-test', [PostTestController::class, 'index']);
     Route::get('/post-test/{id}', [PostTestController::class, 'show']);
     Route::get('/post-test/sub/{sub_module_id}', [PostTestController::class, 'getBySubModule']);
-
-    // Submit post test routes
     Route::post('/post-test/submit', [UserAnswerPostTestController::class, 'submit']);
 
-    // Question Set public routes (read access)
+    // Question Set
     Route::get('/question-set', [QuestionSetController::class, 'index']);
     Route::get('/question-set/{id}', [QuestionSetController::class, 'show']);
 
-    // Question public routes (read access)
+    // Question
     Route::get('/question', [QuestionController::class, 'index']);
     Route::get('/question/{id}', [QuestionController::class, 'show']);
 
-    // Personal information routes (UNCHANGED - HANYA PERSONAL INFO)
+    // Personal Info
     Route::prefix('personal')->group(function () {
         Route::post('/', [PersonalInformationController::class, 'store']);
-
-        // Get personal information of the authenticated userlogin
         Route::get('/me', [PersonalInformationController::class, 'showAuthenticatedUserPersonalInformation']);
-
-        // Check if authenticated user has personal information
         Route::get('/check', [PersonalInformationController::class, 'checkUserPersonalInformation']);
-
         Route::get('/{id}', [PersonalInformationController::class, 'show']);
         Route::put('/', [PersonalInformationController::class, 'update']);
         Route::get('/user/{user_id}', [PersonalInformationController::class, 'getPersonalInformationByUserId']);
     });
 
+    // User Location
     Route::post('/users/location', [UserController::class, 'storeLocation']);
     Route::get('/users/location/check', [UserController::class, 'checkUserLocation']);
     Route::get('/users/location/maps', [UserController::class, 'getAllUsersLocationInfo']);
 
+    // Admin
     Route::middleware(['role:admin'])->group(function () {
-
+        // Admin DASS
         Route::get('/admin/screening-dass-histories', [ScreeningDASSReportController::class, 'getAllScreeningHistories']);
         Route::delete('/admin/screening-dass-histories/{id}', [ScreeningDASSReportController::class, 'deleteHistory']);
         Route::get('/admin/screening-dass-histories/{id}', [ScreeningDASSController::class, 'showAdmin']);
 
+        // Admin HSMBQ
         Route::get('/admin/screening-hsmbq-histories', [ScreeningHSMBQController::class, 'getAllForAdmin']);
         Route::get('/admin/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'getDetailForAdmin']);
         Route::delete('/admin/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'deleteById']);
 
+        // Admin DSMQ
         Route::get('/admin/screening-dsmq-histories', [ScreeningDSMQController::class, 'getAllForAdmin']);
         Route::get('/admin/screening-dsmq-histories/{id}', [ScreeningDSMQController::class, 'getDetailForAdmin']);
         Route::delete('/admin/screening-dsmq-histories/{id}', [ScreeningDSMQController::class, 'deleteById']);
         
+        // Admin Location
         Route::get('/admin/location/{id}', [UserController::class, 'getUserLocationById']);
         
-        // FAQ admin routes
+        // Admin FAQ
         Route::post('/faqs', [FAQController::class, 'store']);
         Route::put('/faqs/{id}', [FAQController::class, 'update']);
         Route::delete('/faqs/{id}', [FAQController::class, 'destroy']);
 
-        // Module admin routes
+        // Admin Module
         Route::post('/modules', [ModuleController::class, 'store']);
         Route::put('/modules/{id}', [ModuleController::class, 'update']);
         Route::delete('/modules/{id}', [ModuleController::class, 'destroy']);
 
-        // Discussion admin routes
+        // Admin Discussion
         Route::get('/discussion/admin/{id}', [DiscussionController::class, 'showForAdmin']);
         Route::put('/discussion/{id}', [DiscussionController::class, 'update']);
         Route::delete('/discussion/{id}', [DiscussionController::class, 'destroy']);
 
-        // Sub Module admin routes
+        // Admin Sub Module
         Route::post('/sub-modules', [SubModuleController::class, 'store']);
         Route::put('/sub-modules/{id}', [SubModuleController::class, 'update']);
         Route::delete('/sub-modules/{id}', [SubModuleController::class, 'destroy']);
 
-        // Module content admin routes
+        // Admin Module Content
         Route::post('/module-content', [ModuleContentController::class, 'store']);
         Route::put('/module-content/{id}', [ModuleContentController::class, 'update']);
         Route::delete('/module-content/{id}', [ModuleContentController::class, 'destroy']);
 
-        // Screening admin routes
+        // Admin Screening
         Route::post('/screening', [ScreeningController::class, 'store']);
         Route::put('/screening/{id}', [ScreeningController::class, 'update']);
         Route::delete('/screening/{id}', [ScreeningController::class, 'destroy']);
@@ -280,33 +253,34 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/screening-scorings/{id}', [ScreeningScoringController::class, 'update']);
         Route::delete('/screening-scorings/{id}', [ScreeningScoringController::class, 'destroy']);
 
-        // Pre Test admin routes
+        // Admin Pre Test
         Route::post('/pre-test', [PreTestController::class, 'store']);
         Route::put('/pre-test/{id}', [PreTestController::class, 'update']);
         Route::delete('/pre-test/{id}', [PreTestController::class, 'destroy']);
 
-        // Post Test admin routes
+        // Admin Post Test
         Route::post('/post-test', [PostTestController::class, 'store']);
         Route::put('/post-test/{id}', [PostTestController::class, 'update']);
         Route::delete('/post-test/{id}', [PostTestController::class, 'destroy']);
 
-        // Question Set admin routes
+        // Admin Question Set
         Route::post('/question-set', [QuestionSetController::class, 'store']);
         Route::put('/question-set/{id}', [QuestionSetController::class, 'update']);
         Route::delete('/question-set/{id}', [QuestionSetController::class, 'destroy']);
 
-        // Question admin routes
+        // Admin Question
         Route::post('/question', [QuestionController::class, 'store']);
         Route::put('/question/{id}', [QuestionController::class, 'update']);
         Route::get('/question/{id}', [QuestionController::class, 'show']);
         Route::delete('/question/{id}', [QuestionController::class, 'destroy']);
 
-        // Personal information routes (ADMIN ONLY)
+        // Admin Personal Info
         Route::prefix('personal')->group(function () {
             Route::get('/', [PersonalInformationController::class, 'index']);
             Route::delete('/{id}', [PersonalInformationController::class, 'destroy']);
         });
 
+        // Admin History
         Route::prefix('history')->group(function () {
             Route::get('/screening', [UserHistoryScreeningController::class, 'getAllHistory']);
             Route::get('/screening/users/{screeningId}', [UserHistoryScreeningController::class, 'getByScreeningId']);
@@ -320,41 +294,24 @@ Route::middleware('auth:api')->group(function () {
             Route::get('/screening-scorings', [UserHistoryScreeningScoringController::class, 'getAllHistory']);
             Route::get('/screening-scorings/users/{screeningScoringId}', [UserHistoryScreeningScoringController::class, 'getByScreeningId']);
             Route::delete('/screening-scorings/users/history/{id}', [UserHistoryScreeningScoringController::class, 'destroy']);
-            
-            // ========================================
-            // 🔧 FIXED: ADMIN DIABETES SCREENING ROUTES
-            // ========================================
             Route::get('/diabetes', [DiabetesScreeningController::class, 'getAllDiabetesHistory']);
             Route::delete('/diabetes/{id}', [DiabetesScreeningController::class, 'adminDeleteDiabetesScreening']);
         });
 
-        // Users admin routes
+        // Admin Users
         Route::apiResource('users', UserController::class);
-
         Route::post('/users/{id}/reset-password', [UserController::class, 'resetPassword']);
 
-        // ========================================
-    // 🆕 TAMBAHAN BARU: DIABETES SCREENING ROUTES UNTUK FRONTEND NEXT.JS
-    // ========================================
-    
-    // MAIN DIABETES SCREENING ROUTES UNTUK FRONTEND NEXT.JS
-    Route::prefix('diabetes-screenings')->group(function () {
-        // GET semua diabetes screenings (untuk frontend Next.js)
-        Route::get('/', [DiabetesScreeningController::class, 'index']);
-        
-        // GET diabetes screening berdasarkan ID
-        Route::get('/{id}', [DiabetesScreeningController::class, 'show']);
-        
-        // GET diabetes screenings berdasarkan user ID
-        Route::get('/user/{user_id}', [DiabetesScreeningController::class, 'getByUser']);
-        
-        // GET diabetes screening terbaru untuk user
-        Route::get('/latest/{user_id}', [DiabetesScreeningController::class, 'getLatest']);
-
-    });
-    Route::prefix('user-screening-new-admin')->group(function () {
-        Route::get('/', [DiabetesScreeningControllerNew::class, 'index']); // ini pindahin buat admin aja nanti
-        Route::get('/{userId}', [DiabetesScreeningControllerNew::class, 'byUserId']);
-    });
+        // Next.js Diabetes Routes
+        Route::prefix('diabetes-screenings')->group(function () {
+            Route::get('/', [DiabetesScreeningController::class, 'index']);
+            Route::get('/{id}', [DiabetesScreeningController::class, 'show']);
+            Route::get('/user/{user_id}', [DiabetesScreeningController::class, 'getByUser']);
+            Route::get('/latest/{user_id}', [DiabetesScreeningController::class, 'getLatest']);
+        });
+        Route::prefix('user-screening-new-admin')->group(function () {
+            Route::get('/', [DiabetesScreeningControllerNew::class, 'index']);
+            Route::get('/{userId}', [DiabetesScreeningControllerNew::class, 'byUserId']);
+        });
     });
 });
