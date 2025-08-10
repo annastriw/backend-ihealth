@@ -199,6 +199,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/users/location/check', [UserController::class, 'checkUserLocation']);
     Route::get('/users/location/maps', [UserController::class, 'getAllUsersLocationInfo']);
 
+    // Nakes-Pengguna
+    Route::apiResource('/medical/users', UserController::class);
+    Route::post('/medical/users/{id}/reset-password', [UserController::class, 'resetPassword']);
+
     // Admin
     Route::middleware(['role:admin'])->group(function () {
         // Admin DASS
