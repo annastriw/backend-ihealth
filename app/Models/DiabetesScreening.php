@@ -2,7 +2,7 @@
 
 // ========================================
 // app/Models/DiabetesScreening.php - UPDATED
-// Dengan field baru untuk sistol/diastol dan klasifikasi hipertensi
+// Dengan field baru untuk sistol/diastol, klasifikasi hipertensi, dan zero glucose support
 // ========================================
 
 namespace App\Models;
@@ -17,7 +17,7 @@ class DiabetesScreening extends Model
     protected $table = 'diabetes_screenings';
 
     // ========================================
-    // FILLABLE - UPDATED dengan field baru
+    // FILLABLE - UPDATED dengan field baru termasuk is_zero_glucose
     // ========================================
     protected $fillable = [
         'user_id',
@@ -27,29 +27,31 @@ class DiabetesScreening extends Model
         'bmi',
         'smoking_history',
         'high_blood_pressure',
-        'sistolic_pressure',           // TAMBAH INI
-        'diastolic_pressure',          // TAMBAH INI  
-        'hypertension_classification', // TAMBAH INI
+        'sistolic_pressure',           // SUDAH ADA
+        'diastolic_pressure',          // SUDAH ADA
+        'hypertension_classification', // SUDAH ADA
         'blood_glucose_level',
         'prediction_result',
         'prediction_score',
         'recommendation',
         'screening_date',
         'ml_response',
+        'is_zero_glucose',            // ✅ TAMBAH BARU - Support zero glucose
     ];
 
     // ========================================
-    // CASTS - UPDATED dengan field baru
+    // CASTS - UPDATED dengan field baru termasuk is_zero_glucose
     // ========================================
     protected $casts = [
         'age' => 'integer',
         'bmi' => 'decimal:2',
-        'sistolic_pressure' => 'integer',    // TAMBAH INI
-        'diastolic_pressure' => 'integer',   // TAMBAH INI
+        'sistolic_pressure' => 'integer',
+        'diastolic_pressure' => 'integer',
         'blood_glucose_level' => 'decimal:2',
         'prediction_score' => 'decimal:2',
         'ml_response' => 'array',
         'screening_date' => 'datetime',
+        'is_zero_glucose' => 'boolean',   // ✅ TAMBAH BARU - Cast sebagai boolean
     ];
 
     // ========================================
@@ -65,7 +67,7 @@ class DiabetesScreening extends Model
     }
 
     // ========================================
-    // ACCESSORS - UPDATED dengan accessor baru
+    // ACCESSORS - UPDATED dengan accessor baru dan zero glucose support
     // ========================================
     
     /**
@@ -85,31 +87,55 @@ class DiabetesScreening extends Model
     }
 
     /**
-     * Badge warna berdasarkan level risiko
+     * Badge warna berdasarkan level risiko - UPDATED dengan zero glucose support
      */
     public function getRiskColorAttribute()
     {
+        // Handle zero glucose case
+        if ($this->is_zero_glucose) {
+            return 'warning';  // Kuning untuk data tidak lengkap
+        }
+        
         $level = strtolower($this->prediction_result ?? '');
-        return match ($level) {
-            'tinggi' => 'danger',
-            'sedang' => 'warning',
-            'rendah' => 'success',
-            default => 'secondary',
-        };
+        
+        switch ($level) {
+            case 'tinggi':
+                return 'danger';
+            case 'sedang':
+                return 'warning';
+            case 'rendah':
+                return 'success';
+            case 'tidak dapat ditentukan':
+                return 'secondary';
+            default:
+                return 'secondary';
+        }
     }
 
     /**
-     * Icon berdasarkan level risiko
+     * Icon berdasarkan level risiko - UPDATED dengan zero glucose support
      */
     public function getRiskIconAttribute()
     {
+        // Handle zero glucose case
+        if ($this->is_zero_glucose) {
+            return 'fas fa-exclamation-triangle';
+        }
+        
         $level = strtolower($this->prediction_result ?? '');
-        return match ($level) {
-            'tinggi' => 'fas fa-exclamation-triangle',
-            'sedang' => 'fas fa-exclamation-circle',
-            'rendah' => 'fas fa-check-circle',
-            default => 'fas fa-info-circle',
-        };
+        
+        switch ($level) {
+            case 'tinggi':
+                return 'fas fa-exclamation-triangle';
+            case 'sedang':
+                return 'fas fa-exclamation-circle';
+            case 'rendah':
+                return 'fas fa-check-circle';
+            case 'tidak dapat ditentukan':
+                return 'fas fa-question-circle';
+            default:
+                return 'fas fa-info-circle';
+        }
     }
 
     /**
@@ -121,24 +147,37 @@ class DiabetesScreening extends Model
     }
 
     /**
-     * Diabetes prediction untuk compatibility dengan kode lama
+     * Diabetes prediction untuk compatibility dengan kode lama - UPDATED dengan zero glucose
      */
     public function getDiabetesPredictionAttribute()
     {
+        // Return 0 untuk zero glucose case
+        if ($this->is_zero_glucose) {
+            return 0;
+        }
+        
         $level = strtolower($this->prediction_result ?? '');
-        return match ($level) {
-            'tinggi' => 1,
-            'sedang' => 1,
-            'rendah' => 0,
-            default => 0,
-        };
+        
+        switch ($level) {
+            case 'tinggi':
+            case 'sedang':
+                return 1;
+            case 'rendah':
+            default:
+                return 0;
+        }
     }
 
     /**
-     * Prediction probability untuk compatibility dengan kode lama
+     * Prediction probability untuk compatibility dengan kode lama - UPDATED dengan zero glucose
      */
     public function getPredictionProbabilityAttribute()
     {
+        // Return 0 untuk zero glucose case
+        if ($this->is_zero_glucose) {
+            return 0;
+        }
+        
         return $this->prediction_score ? ($this->prediction_score / 100) : 0;
     }
 
@@ -159,23 +198,33 @@ class DiabetesScreening extends Model
     }
 
     /**
-     * Format prediction score sebagai percentage
+     * Format prediction score sebagai percentage - UPDATED dengan zero glucose support
      */
     public function getFormattedScoreAttribute()
     {
+        // Return dash untuk zero glucose case
+        if ($this->is_zero_glucose) {
+            return '-';
+        }
+        
         return $this->prediction_score ? number_format($this->prediction_score, 1) . '%' : '0%';
     }
 
     /**
-     * Format blood glucose level
+     * Format blood glucose level - UPDATED dengan zero glucose support
      */
     public function getFormattedGlucoseAttribute()
     {
+        // Return dash untuk zero glucose case
+        if ($this->is_zero_glucose || $this->blood_glucose_level === null) {
+            return '-';
+        }
+        
         return $this->blood_glucose_level ? number_format($this->blood_glucose_level, 0) . ' mg/dL' : null;
     }
 
     /**
-     * TAMBAH: Format blood pressure sistol/diastol
+     * Format blood pressure sistol/diastol
      */
     public function getFormattedBloodPressureAttribute()
     {
@@ -186,7 +235,7 @@ class DiabetesScreening extends Model
     }
 
     /**
-     * TAMBAH: Blood pressure color berdasarkan klasifikasi
+     * Blood pressure color berdasarkan klasifikasi
      */
     public function getBloodPressureColorAttribute()
     {
@@ -204,7 +253,7 @@ class DiabetesScreening extends Model
     }
 
     /**
-     * TAMBAH: Blood pressure icon berdasarkan klasifikasi
+     * Blood pressure icon berdasarkan klasifikasi
      */
     public function getBloodPressureIconAttribute()
     {
@@ -229,11 +278,15 @@ class DiabetesScreening extends Model
     public function getGenderIconAttribute()
     {
         $gender = strtolower($this->gender ?? '');
-        return match ($gender) {
-            'laki-laki' => 'fas fa-mars',
-            'perempuan' => 'fas fa-venus',
-            default => 'fas fa-user',
-        };
+        
+        switch ($gender) {
+            case 'laki-laki':
+                return 'fas fa-mars';
+            case 'perempuan':
+                return 'fas fa-venus';
+            default:
+                return 'fas fa-user';
+        }
     }
 
     /**
@@ -242,15 +295,19 @@ class DiabetesScreening extends Model
     public function getGenderColorAttribute()
     {
         $gender = strtolower($this->gender ?? '');
-        return match ($gender) {
-            'laki-laki' => 'primary',
-            'perempuan' => 'pink',
-            default => 'secondary',
-        };
+        
+        switch ($gender) {
+            case 'laki-laki':
+                return 'primary';
+            case 'perempuan':
+                return 'pink';
+            default:
+                return 'secondary';
+        }
     }
 
     /**
-     * UPDATED: Hypertension status dengan data baru
+     * Hypertension status dengan data baru
      */
     public function getHypertensionStatusAttribute()
     {
@@ -303,25 +360,29 @@ class DiabetesScreening extends Model
             }
         }
         
-        // Fallback ke data lama jika tidak ada klasifikasi baru
+        // ✅ DIPERBAIKI: Fallback ke data lama dengan switch
         $status = strtolower($this->high_blood_pressure ?? '');
-        return match ($status) {
-            'tinggi' => [
-                'text' => 'Tinggi',
-                'icon' => 'fas fa-arrow-up',
-                'color' => 'danger'
-            ],
-            'rendah' => [
-                'text' => 'Normal',
-                'icon' => 'fas fa-check',
-                'color' => 'success'
-            ],
-            default => [
-                'text' => 'Unknown',
-                'icon' => 'fas fa-question',
-                'color' => 'secondary'
-            ]
-        };
+        
+        switch ($status) {
+            case 'tinggi':
+                return [
+                    'text' => 'Tinggi',
+                    'icon' => 'fas fa-arrow-up',
+                    'color' => 'danger'
+                ];
+            case 'rendah':
+                return [
+                    'text' => 'Normal',
+                    'icon' => 'fas fa-check',
+                    'color' => 'success'
+                ];
+            default:
+                return [
+                    'text' => 'Unknown',
+                    'icon' => 'fas fa-question',
+                    'color' => 'secondary'
+                ];
+        }
     }
 
     /**
@@ -358,8 +419,56 @@ class DiabetesScreening extends Model
         }
     }
 
+    /**
+     * ✅ TAMBAH BARU: Zero glucose status
+     */
+    public function getZeroGlucoseStatusAttribute()
+    {
+        if ($this->is_zero_glucose) {
+            return [
+                'text' => 'Data Gula Darah Tidak Tersedia',
+                'icon' => 'fas fa-exclamation-triangle',
+                'color' => 'warning',
+                'badge' => 'Data Parsial'
+            ];
+        }
+        
+        return [
+            'text' => 'Data Lengkap',
+            'icon' => 'fas fa-check-circle',
+            'color' => 'success',
+            'badge' => 'Data Lengkap'
+        ];
+    }
+
+    /**
+     * ✅ TAMBAH BARU: Screening completeness percentage
+     */
+    public function getCompletenessPercentageAttribute()
+    {
+        $totalFields = 6; // Total field yang bisa diisi
+        $filledFields = 0;
+        
+        // Field yang selalu ada
+        if ($this->age) $filledFields++;
+        if ($this->bmi) $filledFields++;
+        if ($this->sistolic_pressure && $this->diastolic_pressure) $filledFields++;
+        if ($this->smoking_history) $filledFields++;
+        if ($this->prediction_result) $filledFields++;
+        
+        // Field gula darah (hanya count jika bukan zero glucose)
+        if (!$this->is_zero_glucose && $this->blood_glucose_level) {
+            $filledFields++;
+        } elseif ($this->is_zero_glucose) {
+            // Jika zero glucose, kurangi total field
+            $totalFields = 5;
+        }
+        
+        return round(($filledFields / $totalFields) * 100);
+    }
+
     // ========================================
-    // SCOPES - Query helpers
+    // SCOPES - Query helpers termasuk zero glucose
     // ========================================
     
     /**
@@ -379,7 +488,7 @@ class DiabetesScreening extends Model
     }
 
     /**
-     * TAMBAH: Scope untuk filter berdasarkan klasifikasi hipertensi
+     * Scope untuk filter berdasarkan klasifikasi hipertensi
      */
     public function scopeWithHypertensionClass($query, $classification)
     {
@@ -387,7 +496,7 @@ class DiabetesScreening extends Model
     }
 
     /**
-     * TAMBAH: Scope untuk filter high blood pressure (sistolik >= 140 atau diastolik >= 90)
+     * Scope untuk filter high blood pressure (sistolik >= 140 atau diastolik >= 90)
      */
     public function scopeHighBloodPressure($query)
     {
@@ -395,6 +504,41 @@ class DiabetesScreening extends Model
             $q->where('sistolic_pressure', '>=', 140)
               ->orWhere('diastolic_pressure', '>=', 90);
         });
+    }
+
+    /**
+     * ✅ TAMBAH BARU: Scope untuk zero glucose cases
+     */
+    public function scopeZeroGlucose($query)
+    {
+        return $query->where('is_zero_glucose', true);
+    }
+
+    /**
+     * ✅ TAMBAH BARU: Scope untuk normal glucose cases
+     */
+    public function scopeNormalGlucose($query)
+    {
+        return $query->where('is_zero_glucose', false);
+    }
+
+    /**
+     * ✅ TAMBAH BARU: Scope untuk data lengkap
+     */
+    public function scopeCompleteData($query)
+    {
+        return $query->where('is_zero_glucose', false)
+                    ->whereNotNull('blood_glucose_level')
+                    ->whereNotNull('sistolic_pressure')
+                    ->whereNotNull('diastolic_pressure');
+    }
+
+    /**
+     * ✅ TAMBAH BARU: Scope untuk data parsial
+     */
+    public function scopePartialData($query)
+    {
+        return $query->where('is_zero_glucose', true);
     }
 
     /**
@@ -430,46 +574,62 @@ class DiabetesScreening extends Model
     }
 
     // ========================================
-    // STATIC METHODS - UPDATED dengan method baru
+    // STATIC METHODS - UPDATED dengan method baru dan zero glucose support
     // ========================================
     
     /**
-     * TAMBAH: Klasifikasi hipertensi berdasarkan sistol dan diastol
+     * Klasifikasi hipertensi berdasarkan sistol dan diastol - SESUAI FLASK API
      */
     public static function classifyHypertension($sistolic, $diastolic)
     {
+        // Optimal
         if ($sistolic < 120 && $diastolic < 80) {
             return "Optimal";
-        } elseif ($sistolic >= 120 && $sistolic <= 129 && $diastolic >= 80 && $diastolic <= 84) {
+        }
+        // Normal
+        elseif ($sistolic <= 129 && $diastolic <= 84) {
             return "Normal";
-        } elseif ($sistolic >= 130 && $sistolic <= 139 && $diastolic >= 85 && $diastolic <= 89) {
+        }
+        // Normal Tinggi (Pra Hipertensi)
+        elseif ($sistolic <= 139 && $diastolic <= 89) {
             return "Normal Tinggi (Pra Hipertensi)";
-        } elseif ($sistolic >= 140 && $sistolic <= 159 && $diastolic >= 90 && $diastolic <= 99) {
+        }
+        // Hipertensi Derajat 1
+        elseif ($sistolic <= 159 && $diastolic <= 99) {
             return "Hipertensi Derajat 1";
-        } elseif ($sistolic >= 160 && $sistolic <= 179 && $diastolic >= 100 && $diastolic <= 109) {
+        }
+        // Hipertensi Derajat 2
+        elseif ($sistolic <= 179 && $diastolic <= 109) {
             return "Hipertensi Derajat 2";
-        } elseif ($sistolic >= 180 && $diastolic >= 110) {
+        }
+        // Hipertensi Derajat 3
+        elseif ($sistolic >= 180 || $diastolic >= 110) {
             return "Hipertensi Derajat 3";
-        } elseif ($sistolic >= 140 && $diastolic < 90) {
+        }
+        // Hipertensi Sistolik Terisolasi
+        elseif ($sistolic >= 140 && $diastolic < 90) {
             return "Hipertensi Sistolik Terisolasi";
         }
-        return "Normal";
+        else {
+            return "Tidak dapat diklasifikasikan";
+        }
     }
 
     /**
-     * Get available risk levels
+     * Get available risk levels - UPDATED dengan zero glucose
      */
     public static function getRiskLevels()
     {
         return [
             'Rendah' => 'success',
             'Sedang' => 'warning', 
-            'Tinggi' => 'danger'
+            'Tinggi' => 'danger',
+            'Tidak Dapat Ditentukan' => 'secondary' // ✅ TAMBAH untuk zero glucose
         ];
     }
 
     /**
-     * TAMBAH: Get available hypertension classifications
+     * Get available hypertension classifications
      */
     public static function getHypertensionClassifications()
     {
@@ -509,7 +669,7 @@ class DiabetesScreening extends Model
     }
 
     /**
-     * UPDATED: Get statistics for user dengan data hipertensi
+     * UPDATED: Get statistics for user dengan data hipertensi dan zero glucose
      */
     public static function getStatsForUser($userId)
     {
@@ -520,19 +680,23 @@ class DiabetesScreening extends Model
             'high_risk' => $screenings->where('prediction_result', 'Tinggi')->count(),
             'medium_risk' => $screenings->where('prediction_result', 'Sedang')->count(),
             'low_risk' => $screenings->where('prediction_result', 'Rendah')->count(),
+            'undetermined' => $screenings->where('prediction_result', 'Tidak Dapat Ditentukan')->count(), // ✅ TAMBAH
+            'zero_glucose' => $screenings->where('is_zero_glucose', true)->count(), // ✅ TAMBAH
+            'complete_data' => $screenings->where('is_zero_glucose', false)->count(), // ✅ TAMBAH
             'high_bp' => $screenings->filter(function($s) {
                 return $s->sistolic_pressure >= 140 || $s->diastolic_pressure >= 90;
             })->count(),
             'optimal_bp' => $screenings->where('hypertension_classification', 'Optimal')->count(),
             'latest' => $screenings->sortByDesc('screening_date')->first(),
-            'average_score' => $screenings->avg('prediction_score'),
+            'average_score' => $screenings->where('is_zero_glucose', false)->avg('prediction_score'), // ✅ EXCLUDE zero glucose
             'average_sistolic' => $screenings->avg('sistolic_pressure'),
             'average_diastolic' => $screenings->avg('diastolic_pressure'),
+            'data_completeness' => $screenings->avg('completeness_percentage'), // ✅ TAMBAH
         ];
     }
 
     /**
-     * TAMBAH: Get blood pressure statistics
+     * UPDATED: Get blood pressure statistics dengan zero glucose awareness
      */
     public static function getBloodPressureStats()
     {
@@ -548,5 +712,56 @@ class DiabetesScreening extends Model
             'stage3' => self::where('hypertension_classification', 'Hipertensi Derajat 3')->count(),
             'isolated' => self::where('hypertension_classification', 'Hipertensi Sistolik Terisolasi')->count(),
         ];
+    }
+
+    /**
+     * ✅ TAMBAH BARU: Get zero glucose statistics
+     */
+    public static function getZeroGlucoseStats()
+    {
+        $total = self::count();
+        $zeroGlucose = self::where('is_zero_glucose', true)->count();
+        $completeData = self::where('is_zero_glucose', false)->count();
+        
+        return [
+            'total' => $total,
+            'zero_glucose_count' => $zeroGlucose,
+            'complete_data_count' => $completeData,
+            'zero_glucose_percentage' => $total > 0 ? round(($zeroGlucose / $total) * 100, 1) : 0,
+            'complete_data_percentage' => $total > 0 ? round(($completeData / $total) * 100, 1) : 0,
+        ];
+    }
+
+    /**
+     * ✅ TAMBAH BARU: Check if screening has complete diabetes prediction data
+     */
+    public function hasCompleteDiabetesData()
+    {
+        return !$this->is_zero_glucose && 
+               $this->blood_glucose_level !== null && 
+               $this->prediction_result !== 'Tidak Dapat Ditentukan';
+    }
+
+    /**
+     * ✅ TAMBAH BARU: Check if screening has hypertension
+     */
+    public function hasHypertension()
+    {
+        $hypertensionConditions = [
+            "Hipertensi Derajat 1", 
+            "Hipertensi Derajat 2", 
+            "Hipertensi Derajat 3", 
+            "Hipertensi Sistolik Terisolasi"
+        ];
+        
+        return in_array($this->hypertension_classification, $hypertensionConditions);
+    }
+
+    /**
+     * ✅ TAMBAH BARU: Get formatted blood pressure classification
+     */
+    public function getFormattedBloodPressureClassification()
+    {
+        return $this->hypertension_classification ?? 'Tidak Terklasifikasi';
     }
 }
