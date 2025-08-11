@@ -221,6 +221,10 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/medical/screening-dsmq-histories/{id}', [ScreeningDSMQController::class, 'getDetailForAdmin']);
     Route::delete('/medical/screening-dsmq-histories/{id}', [ScreeningDSMQController::class, 'deleteById']);
 
+    // Nakes Pre-Test
+    Route::get('/medical/pre-test/users/{preTestId}', [UserHistoryPreTestController::class, 'getByPreTestId']);
+    Route::delete('/medical/pre-test/users/history/{id}', [UserHistoryPreTestController::class, 'destroy']);
+
     // Admin
     Route::middleware(['role:admin'])->group(function () {
         // Admin DASS
