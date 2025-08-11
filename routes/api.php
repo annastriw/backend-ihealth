@@ -216,6 +216,11 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/medical/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'getDetailForAdmin']);
     Route::delete('/medical/screening-hsmbq-histories/{id}', [ScreeningHSMBQController::class, 'deleteById']);
 
+    // Nakes DSMQ
+    Route::get('/medical/screening-dsmq-histories', [ScreeningDSMQController::class, 'getAllForAdmin']);
+    Route::get('/medical/screening-dsmq-histories/{id}', [ScreeningDSMQController::class, 'getDetailForAdmin']);
+    Route::delete('/medical/screening-dsmq-histories/{id}', [ScreeningDSMQController::class, 'deleteById']);
+
     // Admin
     Route::middleware(['role:admin'])->group(function () {
         // Admin DASS
