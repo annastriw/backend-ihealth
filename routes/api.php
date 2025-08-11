@@ -224,6 +224,10 @@ Route::middleware('auth:api')->group(function () {
     // Nakes Pre-Test
     Route::get('/medical/pre-test/users/{preTestId}', [UserHistoryPreTestController::class, 'getByPreTestId']);
     Route::delete('/medical/pre-test/users/history/{id}', [UserHistoryPreTestController::class, 'destroy']);
+    
+    // Nakes Post-Test
+    Route::get('/medical/post-test/users/{postTestId}', [UserHistoryPostTestController::class, 'getByPostTestId']);
+    Route::delete('/medical/post-test/users/history/{id}', [UserHistoryPostTestController::class, 'destroy']);
 
     // Admin
     Route::middleware(['role:admin'])->group(function () {
