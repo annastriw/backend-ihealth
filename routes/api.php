@@ -203,6 +203,9 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('/medical/users', UserController::class);
     Route::post('/medical/users/{id}/reset-password', [UserController::class, 'resetPassword']);
 
+    // Nakes Location
+    Route::get('/medical/location/{id}', [UserController::class, 'getUserLocationById']);
+
     // Admin
     Route::middleware(['role:admin'])->group(function () {
         // Admin DASS
