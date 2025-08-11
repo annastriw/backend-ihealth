@@ -26,7 +26,8 @@ class DiabetesScreeningController extends Controller
                 'heart_disease' => 'required|in:0,1',
                 'smoking_history' => 'required|string|in:perokok aktif,mantan perokok,tidak pernah merokok,tidak ada informasi,pernah merokok (riwayat tidak jelas),tidak merokok saat ini',
                 'bmi' => 'required|numeric|min:10|max:50',
-                'hypertension' => 'required|in:0,1',
+                'sistolic_pressure' => 'required|integer|min:60|max:250',      // TAMBAH INI
+    'diastolic_pressure' => 'required|integer|min:40|max:150',     // TAMBAH INI
                 'blood_glucose_level' => 'required|numeric|min:50|max:400'
             ]);
 
@@ -49,14 +50,14 @@ Log::info('Patient data retrieved', [
             // FORMAT DATA UNTUK ML API (STRING FORMAT)
             // ============================================
             $mlData = [
-                'gender' => $validated['gender'] == 1 ? 'Perempuan' : 'Laki-laki',
-                'age' => (int) $validated['age'],
-                'hypertension' => $validated['hypertension'] == 1 ? 'Tinggi' : 'Normal',
-                'heart_disease' => $validated['heart_disease'] == 1 ? 'Ya' : 'Tidak',
-                'smoking_history' => $validated['smoking_history'],
-                'bmi' => (float) $validated['bmi'],
-                'blood_glucose_level' => (float) $validated['blood_glucose_level']
-            ];
+    'gender' => $validated['gender'] == 1 ? 'Perempuan' : 'Laki-laki',
+    'age' => (int) $validated['age'],
+    'hypertension' => $validated['sistolic_pressure'] >= 140 || $validated['diastolic_pressure'] >= 90 ? 'Tinggi' : 'Normal', // GANTI INI
+    'heart_disease' => $validated['heart_disease'] == 1 ? 'Ya' : 'Tidak',
+    'smoking_history' => $validated['smoking_history'],
+    'bmi' => (float) $validated['bmi'],
+    'blood_glucose_level' => (float) $validated['blood_glucose_level']
+];
 
             Log::info('ML data prepared (STRING format)', ['ml_data' => $mlData]);
 
@@ -73,12 +74,17 @@ Log::info('Patient data retrieved', [
 
                 $screeningData = [
                     'user_id' => $validated['patient_id'], // FIX: Use patient_id from the request as the user_id
-                    'name' => $patientName,
                     'age' => $validated['age'],
                     'gender' => $validated['gender'] == 1 ? 'Perempuan' : 'Laki-laki',
                     'bmi' => $validated['bmi'],
                     'smoking_history' => $this->transformSmokingHistory($validated['smoking_history']),
-                    'high_blood_pressure' => $validated['hypertension'] == 1 ? 'Tinggi' : 'Rendah',
+                    'sistolic_pressure' => $validated['sistolic_pressure'],        // TAMBAH INI
+    'diastolic_pressure' => $validated['diastolic_pressure'],      // TAMBAH INI
+    'hypertension_classification' => DiabetesScreening::classifyHypertension(  // TAMBAH INI
+        $validated['sistolic_pressure'], 
+        $validated['diastolic_pressure']
+    ),
+                    'high_blood_pressure' => $validated['sistolic_pressure'] >= 140 || $validated['diastolic_pressure'] >= 90 ? 'Tinggi' : 'Rendah',
                     'blood_glucose_level' => $validated['blood_glucose_level'],
                     'prediction_result' => $this->getPredictionResult($prediction),
                     'prediction_score' => $this->getPredictionScore($prediction),
@@ -673,6 +679,9 @@ Log::info('Patient data retrieved', [
             'age' => $screening->age,
             'gender' => $screening->gender,
             'bmi' => (float) $screening->bmi,
+            'sistolic_pressure' => $screening->sistolic_pressure,           // TAMBAH INI
+        'diastolic_pressure' => $screening->diastolic_pressure,         // TAMBAH INI
+        'hypertension_classification' => $screening->hypertension_classification, // TAMBAH INI
             'high_blood_pressure' => $screening->high_blood_pressure === 'Tinggi' ? 1 : 0,
             'blood_glucose_level' => (float) $screening->blood_glucose_level,
             'smoking_history' => $screening->smoking_history,

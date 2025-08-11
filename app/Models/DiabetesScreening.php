@@ -1,8 +1,8 @@
 <?php
 
 // ========================================
-// app/Models/DiabetesScreening.php - FIXED
-// Sesuai dengan migration yang sudah ada
+// app/Models/DiabetesScreening.php - UPDATED
+// Dengan field baru untuk sistol/diastol dan klasifikasi hipertensi
 // ========================================
 
 namespace App\Models;
@@ -17,7 +17,7 @@ class DiabetesScreening extends Model
     protected $table = 'diabetes_screenings';
 
     // ========================================
-    // FILLABLE - Sesuai dengan migration fields
+    // FILLABLE - UPDATED dengan field baru
     // ========================================
     protected $fillable = [
         'user_id',
@@ -27,6 +27,9 @@ class DiabetesScreening extends Model
         'bmi',
         'smoking_history',
         'high_blood_pressure',
+        'sistolic_pressure',           // TAMBAH INI
+        'diastolic_pressure',          // TAMBAH INI  
+        'hypertension_classification', // TAMBAH INI
         'blood_glucose_level',
         'prediction_result',
         'prediction_score',
@@ -36,11 +39,13 @@ class DiabetesScreening extends Model
     ];
 
     // ========================================
-    // CASTS - Type casting untuk fields
+    // CASTS - UPDATED dengan field baru
     // ========================================
     protected $casts = [
         'age' => 'integer',
         'bmi' => 'decimal:2',
+        'sistolic_pressure' => 'integer',    // TAMBAH INI
+        'diastolic_pressure' => 'integer',   // TAMBAH INI
         'blood_glucose_level' => 'decimal:2',
         'prediction_score' => 'decimal:2',
         'ml_response' => 'array',
@@ -60,7 +65,7 @@ class DiabetesScreening extends Model
     }
 
     // ========================================
-    // ACCESSORS - Format data untuk display
+    // ACCESSORS - UPDATED dengan accessor baru
     // ========================================
     
     /**
@@ -170,6 +175,55 @@ class DiabetesScreening extends Model
     }
 
     /**
+     * TAMBAH: Format blood pressure sistol/diastol
+     */
+    public function getFormattedBloodPressureAttribute()
+    {
+        if ($this->sistolic_pressure && $this->diastolic_pressure) {
+            return $this->sistolic_pressure . '/' . $this->diastolic_pressure . ' mmHg';
+        }
+        return null;
+    }
+
+    /**
+     * TAMBAH: Blood pressure color berdasarkan klasifikasi
+     */
+    public function getBloodPressureColorAttribute()
+    {
+        $classification = strtolower($this->hypertension_classification ?? '');
+        
+        if (str_contains($classification, 'optimal') || str_contains($classification, 'normal')) {
+            return 'success';
+        } elseif (str_contains($classification, 'pra hipertensi') || str_contains($classification, 'tinggi')) {
+            return 'warning';
+        } elseif (str_contains($classification, 'hipertensi')) {
+            return 'danger';
+        }
+        
+        return 'secondary';
+    }
+
+    /**
+     * TAMBAH: Blood pressure icon berdasarkan klasifikasi
+     */
+    public function getBloodPressureIconAttribute()
+    {
+        $classification = strtolower($this->hypertension_classification ?? '');
+        
+        if (str_contains($classification, 'optimal')) {
+            return 'fas fa-check-circle';
+        } elseif (str_contains($classification, 'normal')) {
+            return 'fas fa-check';
+        } elseif (str_contains($classification, 'pra hipertensi') || str_contains($classification, 'tinggi')) {
+            return 'fas fa-exclamation-triangle';
+        } elseif (str_contains($classification, 'hipertensi')) {
+            return 'fas fa-exclamation-circle';
+        }
+        
+        return 'fas fa-heartbeat';
+    }
+
+    /**
      * Gender icon
      */
     public function getGenderIconAttribute()
@@ -196,10 +250,60 @@ class DiabetesScreening extends Model
     }
 
     /**
-     * Hypertension status dengan icon
+     * UPDATED: Hypertension status dengan data baru
      */
     public function getHypertensionStatusAttribute()
     {
+        // Prioritaskan klasifikasi baru jika ada
+        if ($this->hypertension_classification) {
+            $classification = strtolower($this->hypertension_classification);
+            
+            if (str_contains($classification, 'optimal')) {
+                return [
+                    'text' => 'Optimal',
+                    'icon' => 'fas fa-check-circle',
+                    'color' => 'success'
+                ];
+            } elseif (str_contains($classification, 'normal') && !str_contains($classification, 'tinggi')) {
+                return [
+                    'text' => 'Normal',
+                    'icon' => 'fas fa-check',
+                    'color' => 'success'
+                ];
+            } elseif (str_contains($classification, 'pra hipertensi') || str_contains($classification, 'tinggi')) {
+                return [
+                    'text' => 'Pra Hipertensi',
+                    'icon' => 'fas fa-exclamation-triangle',
+                    'color' => 'warning'
+                ];
+            } elseif (str_contains($classification, 'derajat 1')) {
+                return [
+                    'text' => 'Hipertensi Derajat 1',
+                    'icon' => 'fas fa-exclamation-circle',
+                    'color' => 'danger'
+                ];
+            } elseif (str_contains($classification, 'derajat 2')) {
+                return [
+                    'text' => 'Hipertensi Derajat 2',
+                    'icon' => 'fas fa-exclamation-circle',
+                    'color' => 'danger'
+                ];
+            } elseif (str_contains($classification, 'derajat 3')) {
+                return [
+                    'text' => 'Hipertensi Derajat 3',
+                    'icon' => 'fas fa-times-circle',
+                    'color' => 'danger'
+                ];
+            } elseif (str_contains($classification, 'sistolik terisolasi')) {
+                return [
+                    'text' => 'Hipertensi Sistolik',
+                    'icon' => 'fas fa-arrow-up',
+                    'color' => 'danger'
+                ];
+            }
+        }
+        
+        // Fallback ke data lama jika tidak ada klasifikasi baru
         $status = strtolower($this->high_blood_pressure ?? '');
         return match ($status) {
             'tinggi' => [
@@ -275,6 +379,25 @@ class DiabetesScreening extends Model
     }
 
     /**
+     * TAMBAH: Scope untuk filter berdasarkan klasifikasi hipertensi
+     */
+    public function scopeWithHypertensionClass($query, $classification)
+    {
+        return $query->where('hypertension_classification', $classification);
+    }
+
+    /**
+     * TAMBAH: Scope untuk filter high blood pressure (sistolik >= 140 atau diastolik >= 90)
+     */
+    public function scopeHighBloodPressure($query)
+    {
+        return $query->where(function($q) {
+            $q->where('sistolic_pressure', '>=', 140)
+              ->orWhere('diastolic_pressure', '>=', 90);
+        });
+    }
+
+    /**
      * Scope untuk filter berdasarkan tanggal
      */
     public function scopeInDateRange($query, $startDate, $endDate)
@@ -307,9 +430,32 @@ class DiabetesScreening extends Model
     }
 
     // ========================================
-    // STATIC METHODS - Helper functions
+    // STATIC METHODS - UPDATED dengan method baru
     // ========================================
     
+    /**
+     * TAMBAH: Klasifikasi hipertensi berdasarkan sistol dan diastol
+     */
+    public static function classifyHypertension($sistolic, $diastolic)
+    {
+        if ($sistolic < 120 && $diastolic < 80) {
+            return "Optimal";
+        } elseif ($sistolic >= 120 && $sistolic <= 129 && $diastolic >= 80 && $diastolic <= 84) {
+            return "Normal";
+        } elseif ($sistolic >= 130 && $sistolic <= 139 && $diastolic >= 85 && $diastolic <= 89) {
+            return "Normal Tinggi (Pra Hipertensi)";
+        } elseif ($sistolic >= 140 && $sistolic <= 159 && $diastolic >= 90 && $diastolic <= 99) {
+            return "Hipertensi Derajat 1";
+        } elseif ($sistolic >= 160 && $sistolic <= 179 && $diastolic >= 100 && $diastolic <= 109) {
+            return "Hipertensi Derajat 2";
+        } elseif ($sistolic >= 180 && $diastolic >= 110) {
+            return "Hipertensi Derajat 3";
+        } elseif ($sistolic >= 140 && $diastolic < 90) {
+            return "Hipertensi Sistolik Terisolasi";
+        }
+        return "Normal";
+    }
+
     /**
      * Get available risk levels
      */
@@ -319,6 +465,22 @@ class DiabetesScreening extends Model
             'Rendah' => 'success',
             'Sedang' => 'warning', 
             'Tinggi' => 'danger'
+        ];
+    }
+
+    /**
+     * TAMBAH: Get available hypertension classifications
+     */
+    public static function getHypertensionClassifications()
+    {
+        return [
+            'Optimal' => 'success',
+            'Normal' => 'success',
+            'Normal Tinggi (Pra Hipertensi)' => 'warning',
+            'Hipertensi Derajat 1' => 'danger',
+            'Hipertensi Derajat 2' => 'danger',
+            'Hipertensi Derajat 3' => 'danger',
+            'Hipertensi Sistolik Terisolasi' => 'danger'
         ];
     }
 
@@ -347,7 +509,7 @@ class DiabetesScreening extends Model
     }
 
     /**
-     * Get statistics for user
+     * UPDATED: Get statistics for user dengan data hipertensi
      */
     public static function getStatsForUser($userId)
     {
@@ -358,8 +520,33 @@ class DiabetesScreening extends Model
             'high_risk' => $screenings->where('prediction_result', 'Tinggi')->count(),
             'medium_risk' => $screenings->where('prediction_result', 'Sedang')->count(),
             'low_risk' => $screenings->where('prediction_result', 'Rendah')->count(),
+            'high_bp' => $screenings->filter(function($s) {
+                return $s->sistolic_pressure >= 140 || $s->diastolic_pressure >= 90;
+            })->count(),
+            'optimal_bp' => $screenings->where('hypertension_classification', 'Optimal')->count(),
             'latest' => $screenings->sortByDesc('screening_date')->first(),
             'average_score' => $screenings->avg('prediction_score'),
+            'average_sistolic' => $screenings->avg('sistolic_pressure'),
+            'average_diastolic' => $screenings->avg('diastolic_pressure'),
+        ];
+    }
+
+    /**
+     * TAMBAH: Get blood pressure statistics
+     */
+    public static function getBloodPressureStats()
+    {
+        $total = self::whereNotNull('sistolic_pressure')->whereNotNull('diastolic_pressure')->count();
+        
+        return [
+            'total' => $total,
+            'optimal' => self::where('hypertension_classification', 'Optimal')->count(),
+            'normal' => self::where('hypertension_classification', 'Normal')->count(),
+            'prehypertension' => self::where('hypertension_classification', 'Normal Tinggi (Pra Hipertensi)')->count(),
+            'stage1' => self::where('hypertension_classification', 'Hipertensi Derajat 1')->count(),
+            'stage2' => self::where('hypertension_classification', 'Hipertensi Derajat 2')->count(),
+            'stage3' => self::where('hypertension_classification', 'Hipertensi Derajat 3')->count(),
+            'isolated' => self::where('hypertension_classification', 'Hipertensi Sistolik Terisolasi')->count(),
         ];
     }
 }
