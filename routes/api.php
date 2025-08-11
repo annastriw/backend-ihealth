@@ -206,6 +206,11 @@ Route::middleware('auth:api')->group(function () {
     // Nakes Location
     Route::get('/medical/location/{id}', [UserController::class, 'getUserLocationById']);
 
+    // Nakes DASS
+    Route::get('/medical/screening-dass-histories', [ScreeningDASSReportController::class, 'getAllScreeningHistories']);
+    Route::delete('/medical/screening-dass-histories/{id}', [ScreeningDASSReportController::class, 'deleteHistory']);
+    Route::get('/medical/screening-dass-histories/{id}', [ScreeningDASSController::class, 'showAdmin']);
+
     // Admin
     Route::middleware(['role:admin'])->group(function () {
         // Admin DASS
