@@ -145,7 +145,7 @@ class DiabetesScreeningController extends Controller
                     'created_at' => now(),
                     'updated_at' => now()
                 ];
-
+//
                 Log::info('Data to save', ['screening_data' => $screeningData]);
 
                 $screening = DiabetesScreening::create($screeningData);
@@ -690,5 +690,129 @@ class DiabetesScreeningController extends Controller
         ]);
     }
 
+    /**
+ * Method untuk user melihat hasil screening mereka sendiri
+ */
+public function getUserResults(Request $request)
+{
+    $user = auth()->user();
+    
+    // Log::info('Getting user screening results', ['user_id' => $user->id]);
+    
+    try {
+        // Ambil semua hasil screening user ini, urutkan terbaru
+        $screenings = DiabetesScreening::where('user_id', $user->id)
+            ->orderBy('screening_date', 'desc')
+            ->get();
+        
+        // Ambil hasil terbaru
+        $latestScreening = $screenings->first();
+        
+        // Format data untuk response
+        $formattedScreenings = $screenings->map(function ($screening) {
+            return [
+                'id' => $screening->id,
+                'screening_date' => $screening->screening_date,
+                'age' => $screening->age,
+                'gender' => $screening->gender,
+                'bmi' => $screening->bmi,
+                'sistolic_pressure' => $screening->sistolic_pressure,
+                'diastolic_pressure' => $screening->diastolic_pressure,
+                'blood_glucose_level' => $screening->blood_glucose_level,
+                'hypertension_classification' => $screening->hypertension_classification,
+                'prediction_result' => $screening->prediction_result,
+                'prediction_score' => $screening->prediction_score,
+                'recommendation' => $screening->recommendation,
+                'is_zero_glucose' => $screening->is_zero_glucose ?? false,
+                'created_at' => $screening->created_at,
+            ];
+        });
+        
+        return response()->json([
+            'meta' => [
+                'status' => 'success',
+                'message' => 'User screening results retrieved successfully',
+                'statusCode' => 200
+            ],
+            'data' => [
+                'latest_screening' => $latestScreening ? $formattedScreenings->first() : null,
+                'screening_history' => $formattedScreenings,
+                'total_screenings' => $screenings->count()
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error getting user screening results', [
+            'user_id' => $user->id,
+            'error' => $e->getMessage()
+        ]);
+        
+        return response()->json([
+            'meta' => [
+                'status' => 'error',
+                'message' => 'Error retrieving screening results: ' . $e->getMessage(),
+                'statusCode' => 500
+            ]
+        ], 500);
+    }
+}
+
+/**
+ * Method untuk detail screening berdasarkan ID
+ */
+public function getScreeningDetail($id)
+{
+    $user = auth()->user();
+    
+    Log::info('Getting screening detail', ['user_id' => $user->id, 'screening_id' => $id]);
+    
+    try {
+        $screening = DiabetesScreening::where('id', $id)
+            ->where('user_id', $user->id) // Pastikan user hanya bisa lihat screening mereka sendiri
+            ->first();
+        
+        if (!$screening) {
+            return response()->json([
+                'meta' => [
+                    'status' => 'error',
+                    'message' => 'Screening not found',
+                    'statusCode' => 404
+                ]
+            ], 404);
+        }
+        
+        return response()->json([
+            'meta' => [
+                'status' => 'success',
+                'message' => 'Screening detail retrieved successfully',
+                'statusCode' => 200
+            ],
+            'data' => $screening
+        ]);
+        
+    } catch (\Exception $e) {
+        Log::error('Error getting screening detail', [
+            'user_id' => $user->id,
+            'screening_id' => $id,
+            'error' => $e->getMessage()
+        ]);
+        
+        return response()->json([
+            'meta' => [
+                'status' => 'error',
+                'message' => 'Error retrieving screening detail: ' . $e->getMessage(),
+                'statusCode' => 500
+            ]
+        ], 500);
+    }
+}
+
+/**
+ * Method untuk user dashboard page
+ */
+public function userDashboard()
+{
+    return view('user.screening-results');
+}
     // Other methods remain unchanged...
 }
