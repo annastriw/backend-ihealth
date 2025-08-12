@@ -34,7 +34,8 @@ use App\Http\Controllers\ScreeningDASSController;
 use App\Http\Controllers\ScreeningDASSReportController;
 use App\Http\Controllers\ScreeningHSMBQController;
 use App\Http\Controllers\ScreeningDSMQController;
-
+use App\Http\Controllers\WebsiteReviewController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Auth
@@ -42,6 +43,9 @@ Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:api')->group(function () {
+    // Website-Review
+    Route::post('/website-reviews', [WebsiteReviewController::class, 'store']);
+
     // Auth
     Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
     Route::put('/auth/change-password', [AuthController::class, 'changePassword']);
