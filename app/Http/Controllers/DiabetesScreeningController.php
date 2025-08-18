@@ -128,6 +128,7 @@ class DiabetesScreeningController extends Controller
                 $screeningData = [
                     'user_id' => $validated['patient_id'],
                     'age' => $validated['age'],
+                    'name' => $patientName,
                     'gender' => $validated['gender'] == 1 ? 'Perempuan' : 'Laki-laki',
                     'bmi' => $validated['bmi'],
                     'smoking_history' => $this->transformSmokingHistory($validated['smoking_history']),
