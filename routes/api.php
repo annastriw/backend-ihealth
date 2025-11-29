@@ -36,6 +36,7 @@ use App\Http\Controllers\ScreeningHSMBQController;
 use App\Http\Controllers\ScreeningDSMQController;
 use App\Http\Controllers\WebsiteReviewController;
 use App\Http\Controllers\RegisterOtpController;
+use App\Http\Controllers\ForgotPasswordOtpController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -47,10 +48,10 @@ Route::post('/auth/register-complete', [RegisterOtpController::class, 'registerC
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 // forgot password flow
-Route::post('/auth/forgot-password', [RegisterOtpController::class, 'forgotPassword']);
-Route::post('/auth/forgot-password-resend', [RegisterOtpController::class, 'forgotResend']);
-Route::post('/auth/forgot-password-verify', [RegisterOtpController::class, 'forgotVerify']);
-Route::post('/auth/forgot-password-complete', [RegisterOtpController::class, 'forgotComplete']);
+Route::post('/auth/forgot-password-init', [ForgotPasswordOtpController::class, 'forgotPasswordInit']);
+Route::post('/auth/forgot-password-resend', [ForgotPasswordOtpController::class, 'forgotPasswordResend']);
+Route::post('/auth/forgot-password-verify', [ForgotPasswordOtpController::class, 'forgotPasswordVerify']);
+Route::post('/auth/forgot-password-complete', [ForgotPasswordOtpController::class, 'forgotPasswordComplete']);
 
 Route::middleware('auth:api')->group(function () {
     // Website-Review
