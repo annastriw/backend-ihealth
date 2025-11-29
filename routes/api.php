@@ -35,12 +35,22 @@ use App\Http\Controllers\ScreeningDASSReportController;
 use App\Http\Controllers\ScreeningHSMBQController;
 use App\Http\Controllers\ScreeningDSMQController;
 use App\Http\Controllers\WebsiteReviewController;
+use App\Http\Controllers\RegisterOtpController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Auth
+Route::post('/auth/register-init', [RegisterOtpController::class, 'registerInit']);
+Route::post('/auth/register-resend', [RegisterOtpController::class, 'registerResend']);
+Route::post('/auth/register-verify', [RegisterOtpController::class, 'registerVerify']);
+Route::post('/auth/register-complete', [RegisterOtpController::class, 'registerComplete']);
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+// forgot password flow
+Route::post('/auth/forgot-password', [RegisterOtpController::class, 'forgotPassword']);
+Route::post('/auth/forgot-password-resend', [RegisterOtpController::class, 'forgotResend']);
+Route::post('/auth/forgot-password-verify', [RegisterOtpController::class, 'forgotVerify']);
+Route::post('/auth/forgot-password-complete', [RegisterOtpController::class, 'forgotComplete']);
 
 Route::middleware('auth:api')->group(function () {
     // Website-Review
