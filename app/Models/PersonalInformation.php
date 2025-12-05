@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class PersonalInformation extends Model
 {
@@ -11,7 +12,17 @@ class PersonalInformation extends Model
 
     protected $table = 'personal_information';
 
+    /**
+     * ✅ WAJIB UNTUK UUID PRIMARY KEY
+     */
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    /**
+     * ✅ FIELD YANG BOLEH DI-INSERT
+     */
     protected $fillable = [
+        'id', // ✅ WAJIB ADA UNTUK UUID
         'user_id',
         'name',
         'place_of_birth',
@@ -26,13 +37,30 @@ class PersonalInformation extends Model
         'history_therapy',
     ];
 
+    /**
+     * ✅ CASTING AGAR SESUAI TIPE DATABASE
+     */
     protected $casts = [
         'date_of_birth' => 'date',
         'is_married' => 'boolean',
     ];
 
     /**
-     * Relasi ke tabel users
+     * ✅ AUTO GENERATE UUID SAAT CREATE (ANTI 500 PALING PENTING)
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (!$model->id) {
+                $model->id = (string) Str::uuid();
+            }
+        });
+    }
+
+    /**
+     * ✅ RELASI KE USERS
      */
     public function user()
     {

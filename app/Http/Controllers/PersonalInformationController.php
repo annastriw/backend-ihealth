@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Log;
 class PersonalInformationController extends Controller
 {
     /**
-     * Menampilkan seluruh data personal information
+     * ✅ MENAMPILKAN SEMUA DATA (ADMIN)
      */
     public function index()
     {
-        $personalInformations = PersonalInformation::all();
+        $personalInformations = PersonalInformation::with('user')->latest()->get();
 
         return response()->json([
             'meta' => [
@@ -26,18 +26,39 @@ class PersonalInformationController extends Controller
     }
 
     /**
-     * Menyimpan data personal information baru (berdasarkan user login)
+     * ✅ STORE DATA (USER LOGIN) - ANTI 500
      */
     public function store(Request $request)
     {
         $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'meta' => [
+                    'status' => 'error',
+                    'message' => 'Unauthorized',
+                    'statusCode' => 401
+                ]
+            ], 401);
+        }
+
+        // ✅ CEGAR DOUBLE INPUT
+        if (PersonalInformation::where('user_id', $user->id)->exists()) {
+            return response()->json([
+                'meta' => [
+                    'status' => 'error',
+                    'message' => 'Personal Information already exists',
+                    'statusCode' => 409
+                ]
+            ], 409);
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'place_of_birth' => 'required|string|max:255',
             'date_of_birth' => 'required|date',
             'age' => 'required|string|max:255',
-            'gender' => 'required|string|max:255',
+            'gender' => 'required|string|max:1', // "0" | "1"
             'work' => 'required|string|max:255',
             'is_married' => 'required|boolean',
             'last_education' => 'required|string|max:255',
@@ -49,17 +70,7 @@ class PersonalInformationController extends Controller
         try {
             $personalInformation = PersonalInformation::create([
                 'user_id' => $user->id,
-                'name' => $validated['name'],
-                'place_of_birth' => $validated['place_of_birth'],
-                'date_of_birth' => $validated['date_of_birth'],
-                'age' => $validated['age'],
-                'gender' => $validated['gender'],
-                'work' => $validated['work'],
-                'is_married' => $validated['is_married'],
-                'last_education' => $validated['last_education'],
-                'origin_disease' => $validated['origin_disease'],
-                'disease_duration' => $validated['disease_duration'],
-                'history_therapy' => $validated['history_therapy'],
+                ...$validated
             ]);
 
             return response()->json([
@@ -72,7 +83,7 @@ class PersonalInformationController extends Controller
             ], 201);
 
         } catch (\Throwable $th) {
-            Log::error('Error saving personal information: ' . $th->getMessage());
+            Log::error('STORE PersonalInformation ERROR: ' . $th->getMessage());
 
             return response()->json([
                 'meta' => [
@@ -85,7 +96,7 @@ class PersonalInformationController extends Controller
     }
 
     /**
-     * Menampilkan detail berdasarkan ID
+     * ✅ DETAIL BERDASARKAN ID
      */
     public function show($id)
     {
@@ -102,7 +113,7 @@ class PersonalInformationController extends Controller
     }
 
     /**
-     * Update data berdasarkan user login
+     * ✅ UPDATE DATA USER LOGIN
      */
     public function update(Request $request)
     {
@@ -125,7 +136,7 @@ class PersonalInformationController extends Controller
             'place_of_birth' => 'sometimes|string|max:255',
             'date_of_birth' => 'sometimes|date',
             'age' => 'sometimes|string|max:255',
-            'gender' => 'sometimes|string|max:255',
+            'gender' => 'sometimes|string|max:1',
             'work' => 'sometimes|string|max:255',
             'is_married' => 'sometimes|boolean',
             'last_education' => 'sometimes|string|max:255',
@@ -147,7 +158,7 @@ class PersonalInformationController extends Controller
     }
 
     /**
-     * Menghapus data berdasarkan ID
+     * ✅ DELETE BERDASARKAN ID
      */
     public function destroy($id)
     {
@@ -164,7 +175,7 @@ class PersonalInformationController extends Controller
     }
 
     /**
-     * Ambil data berdasarkan user_id
+     * ✅ AMBIL DATA BERDASARKAN USER ID
      */
     public function getPersonalInformationByUserId($user_id)
     {
@@ -192,7 +203,7 @@ class PersonalInformationController extends Controller
     }
 
     /**
-     * Cek apakah user sudah mengisi personal information
+     * ✅ CEK APAKAH USER SUDAH MENGISI DATA
      */
     public function checkUserPersonalInformation(Request $request)
     {
@@ -213,7 +224,7 @@ class PersonalInformationController extends Controller
     }
 
     /**
-     * Menampilkan personal information milik user login
+     * ✅ TAMPILKAN DATA USER LOGIN
      */
     public function showAuthenticatedUserPersonalInformation(Request $request)
     {
