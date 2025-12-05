@@ -12,21 +12,34 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('personal_information', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->foreignUuid('user_id');
-            $table->string('name');
-            $table->string('place_of_birth');
+
+            // Primary Key
+            $table->uuid('id')->primary(); // CHAR(36)
+
+            // Foreign Key
+            $table->uuid('user_id'); // CHAR(36)
+
+            // Data Pribadi
+            $table->string('name', 255);
+            $table->string('place_of_birth', 255);
             $table->date('date_of_birth');
-            $table->string('age');
-            $table->string('gender');
-            $table->string('work');
-            $table->boolean('is_married');
-            $table->string('last_education');
-            $table->string('origin_disease');
-            $table->string('patient_type');
-            $table->string('disease_duration');
+            $table->string('age', 255);
+            $table->string('gender', 255);
+            $table->string('work', 255);
+            $table->boolean('is_married'); // ✅ PERUBAHAN DI SINI
+            $table->string('last_education', 255);
+
+            // Data Penyakit
+            $table->string('origin_disease', 255);
+            $table->string('disease_duration', 255);
             $table->text('history_therapy');
-            $table->timestamps();
+
+            // TIMESTAMP NULL sesuai gambar
+            $table->timestamp('created_at')->nullable();
+            $table->timestamp('updated_at')->nullable();
+
+            // Foreign Key Constraint
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
         });
     }
 
