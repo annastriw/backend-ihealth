@@ -37,6 +37,7 @@ use App\Http\Controllers\ScreeningDSMQController;
 use App\Http\Controllers\WebsiteReviewController;
 use App\Http\Controllers\RegisterOtpController;
 use App\Http\Controllers\ForgotPasswordOtpController;
+use App\Http\Controllers\PatientHealthCheckController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -243,6 +244,13 @@ Route::middleware('auth:api')->group(function () {
     // Nakes Post-Test
     Route::get('/medical/post-test/users/{postTestId}', [UserHistoryPostTestController::class, 'getByPostTestId']);
     Route::delete('/medical/post-test/users/history/{id}', [UserHistoryPostTestController::class, 'destroy']);
+
+    // Nakes Input Cekkes Pasien
+    Route::prefix('patient-health-check')->group(function () {
+        Route::get('search', [PatientHealthCheckController::class, 'searchPatient']);
+        Route::post('/', [PatientHealthCheckController::class, 'store']);
+        Route::get('preview/{personal_information_id}', [PatientHealthCheckController::class, 'preview']);
+});
 
     // Admin
     Route::middleware(['role:admin'])->group(function () {
