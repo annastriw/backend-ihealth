@@ -9,21 +9,27 @@ use Illuminate\Support\Str;
 
 class PatientHealthCheckController extends Controller
 {
-    // 1️⃣ Search pasien (autocomplete)
-    public function searchPatient(Request $request)
-    {
-        $query = $request->query('q', '');
+// 1️⃣ Search pasien (autocomplete)
+public function searchPatient(Request $request)
+{
+    $query = $request->query('q', '');
 
-        $patients = PersonalInformation::where('name', 'LIKE', "%{$query}%")
-                        ->select('id', 'name', 'age', 'gender')
-                        ->limit(10)
-                        ->get();
+    $patients = PersonalInformation::where('name', 'LIKE', "%{$query}%")
+                    ->select('id', 'name', 'age', 'gender')
+                    ->limit(10)
+                    ->get()
+                    ->map(function ($patient) {
+                        // Mapping gender: 0 => Male, 1 => Female
+                        $patient->gender = $patient->gender == 1 ? 'Female' : 'Male';
+                        return $patient;
+                    });
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $patients,
-        ]);
-    }
+    return response()->json([
+        'status' => 'success',
+        'data' => $patients,
+    ]);
+}
+
 
     // 2️⃣ Simpan cek kesehatan pasien
     public function store(Request $request)
