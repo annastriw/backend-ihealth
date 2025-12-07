@@ -77,7 +77,7 @@ public function searchPatient(Request $request)
     {
         // Ambil semua record terakhir dari pasien
         $records = PatientHealthCheck::where('personal_information_id', $personal_information_id)
-                        ->orderBy('check_date', 'desc')
+                        ->orderBy('created_at', 'desc')
                         ->get();
 
         return response()->json([
