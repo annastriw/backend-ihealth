@@ -250,6 +250,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('search', [PatientHealthCheckController::class, 'searchPatient']);
         Route::post('/', [PatientHealthCheckController::class, 'store']);
         Route::get('preview/{personal_information_id}', [PatientHealthCheckController::class, 'preview']);
+        Route::get('summary', [PatientHealthCheckController::class, 'listPatientSummary']);
 });
 
     // Admin
