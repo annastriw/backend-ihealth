@@ -38,6 +38,8 @@ use App\Http\Controllers\WebsiteReviewController;
 use App\Http\Controllers\RegisterOtpController;
 use App\Http\Controllers\ForgotPasswordOtpController;
 use App\Http\Controllers\PatientHealthCheckController;
+use App\Http\Controllers\SusController;
+use App\Http\Controllers\FeedbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -55,8 +57,9 @@ Route::post('/auth/forgot-password-verify', [ForgotPasswordOtpController::class,
 Route::post('/auth/forgot-password-complete', [ForgotPasswordOtpController::class, 'forgotPasswordComplete']);
 
 Route::middleware('auth:api')->group(function () {
-    // Website-Review
-    Route::post('/website-reviews', [WebsiteReviewController::class, 'store']);
+    // Submit SUS
+    Route::post('/patient/submit-sus', [SusController::class, 'store']);
+    Route::post('/patient/submit-feedback', [FeedbackController::class, 'store']);
 
     // Auth
     Route::get('/auth/get-auth', [AuthController::class, 'getAuth']);
