@@ -41,6 +41,7 @@ use App\Http\Controllers\PatientHealthCheckController;
 use App\Http\Controllers\SusController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\SusAnalyticsController;
+use App\Http\Controllers\AdminSusResponseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -261,6 +262,8 @@ Route::middleware('auth:api')->group(function () {
     Route::middleware(['role:admin'])->group(function () {
         // Admin SUS Testing
         Route::get('/admin/sus/analytics', [SusAnalyticsController::class, 'index']);
+        Route::get('/admin/sus-responses', [AdminSusResponseController::class, 'index']);
+        Route::get('/admin/sus-responses/{id}', [AdminSusResponseController::class, 'show']);
 
         // Admin DASS
         Route::get('/admin/screening-dass-histories', [ScreeningDASSReportController::class, 'getAllScreeningHistories']);
