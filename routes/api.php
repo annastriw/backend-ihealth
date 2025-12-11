@@ -42,6 +42,7 @@ use App\Http\Controllers\SusController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\SusAnalyticsController;
 use App\Http\Controllers\AdminSusResponseController;
+use App\Http\Controllers\AdminFeedbackMessageController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -264,6 +265,7 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/admin/sus/analytics', [SusAnalyticsController::class, 'index']);
         Route::get('/admin/sus-responses', [AdminSusResponseController::class, 'index']);
         Route::get('/admin/sus-responses/{id}', [AdminSusResponseController::class, 'show']);
+        Route::get('/admin/feedback-messages', [AdminFeedbackMessageController::class, 'index']);
 
         // Admin DASS
         Route::get('/admin/screening-dass-histories', [ScreeningDASSReportController::class, 'getAllScreeningHistories']);
