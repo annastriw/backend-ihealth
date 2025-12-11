@@ -40,6 +40,7 @@ use App\Http\Controllers\ForgotPasswordOtpController;
 use App\Http\Controllers\PatientHealthCheckController;
 use App\Http\Controllers\SusController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\SusAnalyticsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -258,6 +259,9 @@ Route::middleware('auth:api')->group(function () {
 
     // Admin
     Route::middleware(['role:admin'])->group(function () {
+        // Admin SUS Testing
+        Route::get('/admin/sus/analytics', [SusAnalyticsController::class, 'index']);
+
         // Admin DASS
         Route::get('/admin/screening-dass-histories', [ScreeningDASSReportController::class, 'getAllScreeningHistories']);
         Route::delete('/admin/screening-dass-histories/{id}', [ScreeningDASSReportController::class, 'deleteHistory']);
