@@ -23,7 +23,7 @@ class SusController extends Controller
         if ($already) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'You can only submit once per day.'
+                'message' => 'Anda hanya dapat mengirimkan sekali per hari.'
             ], 403);
         }
 
