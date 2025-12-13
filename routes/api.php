@@ -257,6 +257,10 @@ Route::middleware('auth:api')->group(function () {
         Route::post('/', [PatientHealthCheckController::class, 'store']);
         Route::get('preview/{personal_information_id}', [PatientHealthCheckController::class, 'preview']);
         Route::get('/summary', [PatientHealthCheckController::class, 'listPatientSummary']);
+        Route::get('card-info/{personal_information_id}', [PatientHealthCheckController::class, 'showLatestByPersonalInformation']);
+        Route::get('analytics/{personal_information_id}', [PatientHealthCheckController::class, 'analyticsByPatient']);
+        Route::get('table/{personal_information_id}', [PatientHealthCheckController::class, 'tableByPatient']);
+        Route::delete('/{id}', [PatientHealthCheckController::class, 'destroy']);
 });
 
     // Admin

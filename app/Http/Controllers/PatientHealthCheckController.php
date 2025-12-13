@@ -126,4 +126,139 @@ public function searchPatient(Request $request)
             'data' => $patients
         ]);
     }
+
+        public function showLatestByPersonalInformation($personal_information_id)
+    {
+        $latestCheck = PatientHealthCheck::where(
+                'personal_information_id',
+                $personal_information_id
+            )
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$latestCheck) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data cek kesehatan tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'name' => $latestCheck->name,
+                'age' => $latestCheck->age,
+                'gender' => $latestCheck->gender,
+
+                'hypertension' => $latestCheck->hypertension,
+                'diabetes' => $latestCheck->diabetes,
+                'obesity' => $latestCheck->obesity,
+                'family_history' => $latestCheck->family_history,
+
+                'smoking_status' => $latestCheck->smoking_status,
+                'physical_activity' => $latestCheck->physical_activity,
+
+                'previous_heart_disease' => $latestCheck->previous_heart_disease,
+                'medication_usage' => $latestCheck->medication_usage,
+
+                'checked_at' => $latestCheck->created_at->toDateTimeString()
+            ]
+        ], 200);
+    }
+
+        public function analyticsByPatient($personal_information_id)
+    {
+        $checks = PatientHealthCheck::where(
+                'personal_information_id',
+                $personal_information_id
+            )
+            ->orderBy('check_date', 'asc')
+            ->get([
+                'check_date',
+                'blood_pressure_systolic',
+                'blood_pressure_diastolic',
+                'random_blood_sugar',
+                'cholesterol_level',
+                'bmi'
+            ]);
+
+        if ($checks->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data analytics cek kesehatan tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'personal_information_id' => $personal_information_id,
+
+                'labels' => $checks->pluck('check_date'),
+
+                'datasets' => [
+                    'blood_pressure_systolic' => $checks->pluck('blood_pressure_systolic'),
+                    'blood_pressure_diastolic' => $checks->pluck('blood_pressure_diastolic'),
+                    'random_blood_sugar' => $checks->pluck('random_blood_sugar'),
+                    'cholesterol_level' => $checks->pluck('cholesterol_level'),
+                    'bmi' => $checks->pluck('bmi'),
+                ]
+            ]
+        ], 200);
+    }
+
+        public function tableByPatient($personal_information_id)
+    {
+        $checks = PatientHealthCheck::where(
+                'personal_information_id',
+                $personal_information_id
+            )
+            ->orderBy('check_date', 'desc')
+            ->get([
+                'id',
+                'check_date',
+                'blood_pressure_systolic',
+                'blood_pressure_diastolic',
+                'random_blood_sugar',
+                'cholesterol_level',
+                'height',
+                'weight',
+                'bmi',
+                'waist_circumference',
+                'dietary_habits',
+                'sleep_hours',
+                'stress_level'
+            ]);
+
+        if ($checks->isEmpty()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data cek kesehatan tidak ditemukan'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $checks
+        ], 200);
+    }
+
+        public function destroy($id)
+    {
+        $check = PatientHealthCheck::find($id);
+
+        if (!$check) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data cek kesehatan tidak ditemukan'
+            ], 404);
+        }
+
+        $check->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data cek kesehatan berhasil dihapus'
+        ], 200);
+    }
 }
