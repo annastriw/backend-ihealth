@@ -2,11 +2,11 @@ version: "3.8"
 
 services:
   app:
+    container_name: laravel_app
     build:
       context: .
       dockerfile: docker/php/Dockerfile
-    container_name: laravel_app
     volumes:
-      - .:/var/www
+      - /var/www/backend-ihealth:/var/www
     ports:
-      - "127.0.0.1:9001:9001"
+      - "127.0.0.1:9001:9000"

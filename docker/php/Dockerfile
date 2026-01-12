@@ -33,5 +33,5 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-EXPOSE 9001
+EXPOSE 9000
 CMD ["php-fpm"]
