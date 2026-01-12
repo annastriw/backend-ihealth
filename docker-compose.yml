@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: laravel_app
+    volumes:
+      - .:/var/www
+    ports:
+      - "127.0.0.1:9001:9001"
