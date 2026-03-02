@@ -66,4 +66,9 @@ class PersonalInformation extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function healthChecks()
+    {
+        return $this->hasMany(PatientHealthCheck::class, 'personal_information_id', 'id');
+    }
 }

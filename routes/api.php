@@ -43,6 +43,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\SusAnalyticsController;
 use App\Http\Controllers\AdminSusResponseController;
 use App\Http\Controllers\AdminFeedbackMessageController;
+use App\Http\Controllers\HeartAttackRiskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -261,7 +262,13 @@ Route::middleware('auth:api')->group(function () {
         Route::get('analytics/{personal_information_id}', [PatientHealthCheckController::class, 'analyticsByPatient']);
         Route::get('table/{personal_information_id}', [PatientHealthCheckController::class, 'tableByPatient']);
         Route::delete('/{id}', [PatientHealthCheckController::class, 'destroy']);
-});
+    });
+
+    // Nakes Prediksi Risiko
+    Route::prefix('heart-attack-risk')->group(function () {
+        Route::get('patients/search', [HeartAttackRiskController::class, 'searchPatients']);
+        Route::get('patients/{personal_information_id}/latest-5-checks', [HeartAttackRiskController::class, 'latest5Checks']);
+    });
 
     // Admin
     Route::middleware(['role:admin'])->group(function () {
