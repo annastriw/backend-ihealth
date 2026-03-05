@@ -71,4 +71,9 @@ class PersonalInformation extends Model
     {
         return $this->hasMany(PatientHealthCheck::class, 'personal_information_id', 'id');
     }
+
+    public function predictions()
+    {
+        return $this->hasMany(HeartAttackRiskPred::class, 'personal_information_id', 'id');
+    }
 }

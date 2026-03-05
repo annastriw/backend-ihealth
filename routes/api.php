@@ -44,6 +44,7 @@ use App\Http\Controllers\SusAnalyticsController;
 use App\Http\Controllers\AdminSusResponseController;
 use App\Http\Controllers\AdminFeedbackMessageController;
 use App\Http\Controllers\HeartAttackRiskController;
+use App\Http\Controllers\HeartAttackRiskPredController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -269,7 +270,13 @@ Route::middleware('auth:api')->group(function () {
         Route::get('/patients/search', [HeartAttackRiskController::class, 'searchPatients']);
         Route::get('/patients/{personal_information_id}/latest-checks', [HeartAttackRiskController::class, 'latest5Checks']);
         Route::post('/predictions', [HeartAttackRiskController::class, 'storePrediction']);
+        Route::get('/predictions/patients', [HeartAttackRiskPredController::class, 'listPatientsWithPredictions']);
+        Route::get('/predictions/patients/{personal_information_id}', [HeartAttackRiskPredController::class, 'listPredictionsByPatient']);
+        Route::get('/predictions/{id}', [HeartAttackRiskPredController::class, 'show']);
+        Route::delete('/predictions/{id}', [HeartAttackRiskPredController::class, 'destroy']);
     });
+    
+
 
     // Admin
     Route::middleware(['role:admin'])->group(function () {
