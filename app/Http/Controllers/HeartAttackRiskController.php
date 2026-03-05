@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PersonalInformation;
 use App\Models\PatientHealthCheck;
+use App\Models\HeartAttackRiskPred;
+use Illuminate\Support\Facades\Validator;
 
 class HeartAttackRiskController extends Controller
 {
@@ -131,5 +133,60 @@ class HeartAttackRiskController extends Controller
             'status' => 'success',
             'data' => $checks,
         ], 200);
+    }
+
+    public function storePrediction(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'patient_health_check_id' => ['required', 'string', 'size:36', 'exists:patient_health_check,id'],
+            'personal_information_id' => ['required', 'string', 'size:36', 'exists:personal_information,id'],
+
+            'pred_value' => ['required', 'integer'],
+            'not_risk'   => ['required', 'numeric', 'min:0', 'max:1'],
+            'risk'       => ['required', 'numeric', 'min:0', 'max:1'],
+
+            // boleh kirim array dari frontend -> akan di-json_encode
+            'analysis_text' => ['required'],
+            'factor_text'   => ['required'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $analysis = $request->input('analysis_text');
+        $factor = $request->input('factor_text');
+
+        // fleksibel: kalau array -> simpan JSON string, kalau string -> simpan string
+        $analysisText = is_array($analysis) ? json_encode($analysis, JSON_UNESCAPED_UNICODE) : (string) $analysis;
+        $factorText   = is_array($factor) ? json_encode($factor, JSON_UNESCAPED_UNICODE) : (string) $factor;
+
+        $pred = HeartAttackRiskPred::create([
+            'patient_health_check_id' => $request->string('patient_health_check_id'),
+            'personal_information_id' => $request->string('personal_information_id'),
+            'pred_value' => (int) $request->input('pred_value'),
+            'not_risk'   => (float) $request->input('not_risk'),
+            'risk'       => (float) $request->input('risk'),
+            'analysis_text' => $analysisText,
+            'factor_text' => $factorText,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Prediksi berhasil disimpan',
+            'data' => [
+                'id' => $pred->id,
+                'patient_health_check_id' => $pred->patient_health_check_id,
+                'personal_information_id' => $pred->personal_information_id,
+                'pred_value' => $pred->pred_value,
+                'not_risk' => $pred->not_risk,
+                'risk' => $pred->risk,
+                'created_at' => $pred->created_at,
+            ],
+        ], 201);
     }
 }

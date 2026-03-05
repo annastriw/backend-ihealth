@@ -45,4 +45,9 @@ class PatientHealthCheck extends Model
     {
         return $this->belongsTo(PersonalInformation::class, 'personal_information_id', 'id');
     }
+
+    public function predictions()
+    {
+        return $this->hasMany(\App\Models\HeartAttackRiskPred::class, 'patient_health_check_id', 'id');
+    }
 }
