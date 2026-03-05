@@ -266,8 +266,8 @@ Route::middleware('auth:api')->group(function () {
 
     // Nakes Prediksi Risiko
     Route::prefix('heart-attack-risk')->group(function () {
-        Route::get('patients/search', [HeartAttackRiskController::class, 'searchPatients']);
-        Route::get('patients/{personal_information_id}/latest-5-checks', [HeartAttackRiskController::class, 'latest5Checks']);
+        Route::get('/patients/search', [HeartAttackRiskController::class, 'searchPatients']);
+        Route::get('/patients/{personal_information_id}/latest-checks', [HeartAttackRiskController::class, 'latest5Checks']);
     });
 
     // Admin
