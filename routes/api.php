@@ -45,6 +45,7 @@ use App\Http\Controllers\AdminSusResponseController;
 use App\Http\Controllers\AdminFeedbackMessageController;
 use App\Http\Controllers\HeartAttackRiskController;
 use App\Http\Controllers\HeartAttackRiskPredController;
+use App\Http\Controllers\Api\IotMeasurementController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +61,13 @@ Route::post('/auth/forgot-password-init', [ForgotPasswordOtpController::class, '
 Route::post('/auth/forgot-password-resend', [ForgotPasswordOtpController::class, 'forgotPasswordResend']);
 Route::post('/auth/forgot-password-verify', [ForgotPasswordOtpController::class, 'forgotPasswordVerify']);
 Route::post('/auth/forgot-password-complete', [ForgotPasswordOtpController::class, 'forgotPasswordComplete']);
+
+Route::prefix('iot')->group(function () {
+    Route::post('/blood-pressure', [IotMeasurementController::class, 'storeBloodPressure']);
+    Route::post('/blood-sugar', [IotMeasurementController::class, 'storeBloodSugar']);
+    Route::post('/cholesterol', [IotMeasurementController::class, 'storeCholesterol']);
+    Route::get('/stream', [IotMeasurementController::class, 'stream']);
+});
 
 Route::middleware('auth:api')->group(function () {
     // Submit SUS
