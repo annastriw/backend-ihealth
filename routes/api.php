@@ -46,6 +46,8 @@ use App\Http\Controllers\AdminFeedbackMessageController;
 use App\Http\Controllers\HeartAttackRiskController;
 use App\Http\Controllers\HeartAttackRiskPredController;
 use App\Http\Controllers\Api\IotMeasurementController;
+use App\Http\Controllers\UserPatientHealthCheckController;
+use App\Http\Controllers\UserHeartAttackRiskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -70,6 +72,15 @@ Route::prefix('iot')->group(function () {
 });
 
 Route::middleware('auth:api')->group(function () {
+    Route::prefix('user')->group(function () {
+        Route::get('patient-health-check/table', [UserPatientHealthCheckController::class, 'myTable']);
+        Route::get('patient-health-check/card-info', [UserPatientHealthCheckController::class, 'myCardInfo']);
+        Route::get('patient-health-check/analytics', [UserPatientHealthCheckController::class, 'myAnalytics']);
+
+        Route::get('heart-attack-risk/predictions', [UserHeartAttackRiskController::class, 'myPredictions']);
+        Route::get('heart-attack-risk/predictions/{id}', [UserHeartAttackRiskController::class, 'show']);
+    });
+
     // Submit SUS
     Route::post('/patient/submit-sus', [SusController::class, 'store']);
     Route::post('/patient/submit-feedback', [FeedbackController::class, 'store']);
